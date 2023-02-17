@@ -40,7 +40,7 @@ vax_type_lookup = c(
   "mRNA-1273/omicron"="modernaomicron",
   "BNT162b2/children"="pfizerchildren",
   "ChAdOx1/2"="az2",
-  "Other"="other",
+  "Other"="other"
 )
 
 data_vax <-
@@ -54,13 +54,18 @@ data_vax <-
     vax_date <= end_date
   ) %>%
   mutate(
-    vax_index = factor(vax_index, levels = sort(unique(vax_index)), labels = paste("Dose", sort(unique(vax_index)))),
-    dose = vax_index,
+    vax_dosenumber = factor(vax_index, levels = sort(unique(vax_index)), labels = paste("Dose", sort(unique(vax_index)))),
     vax_week = floor_date(vax_date, unit =  "week", week_start = 1),
     vax_type = fct_recode(factor(vax_type, levels=vax_type_lookup), !!!vax_type_lookup),
     all=""
   )
 
+## note that all patient characteristics are determined as at the date of vaccination.
+## for exmaple, a person who moves from london to manchester between their first and second dose will be classed as in "london" for their first dose and "north west" for their second dose.
+##
+
+
+# output fully stratified vaccine counts ----
 
 summary_stratified <- data_vax %>%
   group_by(
@@ -74,6 +79,7 @@ summary_stratified <- data_vax %>%
 
 write_csv(summary_stratified, here("output", "report", "stratified_vax_counts.csv"))
 
+# output plots of vaccine counts by type, dose number, and other characteristics ----
 
 
 plot_vax_dates <- function(rows, cols){
@@ -138,8 +144,66 @@ plot_vax_dates <- function(rows, cols){
 }
 
 
-plot_vax_dates(ageband, vax_index)
-plot_vax_dates(region, vax_index)
-plot_vax_dates(sex, vax_index)
-plot_vax_dates(dose, all)
+plot_vax_dates(ageband, vax_dosenumber)
+plot_vax_dates(region, vax_dosenumber)
+plot_vax_dates(sex, vax_dosenumber)
+plot_vax_dates(vax_dosenumber, all)
 
+# output plots of time since previous vaccination by type, dose number, and other characteristics ----
+
+
+plot_vax_intervals <- function(rows, cols){
+
+  summary_by <- data_vax %>%
+    filter(vax_index != 1) %>%
+    group_by(vax_dosenumber, vax_type, vax_interval) %>%
+    group_by({{rows}}, {{cols}}, .add=TRUE) %>%
+    summarise(
+      n=roundmid_any(n(), 6)
+    )
+
+  temp_plot <-
+    ggplot(summary_by) +
+    geom_col(
+      aes(x=vax_interval, y=n, fill=vax_type, group=vax_type),
+      alpha=0.5,
+      position=position_stack(reverse=TRUE),
+      #position=position_identity(),
+      width=1
+    )+
+    facet_grid(
+      rows=vars({{rows}}),
+      cols=vars({{cols}}),
+      switch="y",
+      space="free_x",
+      scales="free_x"
+    )+
+    labs(
+      x="Date",
+      y=NULL,
+      fill=NULL
+    )+
+    scale_fill_brewer(palette="Set2")+
+    #scale_y_continuous(limits=c(0,100))+
+    theme_minimal()+
+    theme(
+      axis.text.x.top=element_text(hjust=0),
+      axis.text.x.bottom=element_text(hjust=0),
+      strip.text.y.left = element_text(angle = 0, hjust=1),
+      strip.placement = "outside",
+      axis.text.y = element_blank(),
+      legend.position = "bottom"
+    )
+
+  print(temp_plot)
+
+  row_name = deparse(substitute(rows))
+  col_name = deparse(substitute(cols))
+
+  ggsave(here("output","report", glue("vax_intervals_{row_name}_{col_name}.png")), plot=temp_plot)
+}
+
+plot_vax_intervals(ageband, vax_dosenumber)
+plot_vax_intervals(region, vax_dosenumber)
+plot_vax_intervals(sex, vax_dosenumber)
+plot_vax_intervals(vax_dosenumber, all)
