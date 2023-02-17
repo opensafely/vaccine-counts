@@ -18,3 +18,10 @@ actions:
       highly_sensitive:
         feather: output/data/*.feather
 
+  report:
+    run: r:latest analysis/report.R
+    needs: [process]
+    outputs:
+      moderately_sensitive:
+        csv: output/report/*.csv
+        png: output/report/*.png

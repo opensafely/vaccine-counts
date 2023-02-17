@@ -1,0 +1,145 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Purpose: To assess geograhpcial distribution of moderna / pfizer booster vaccines
+## by region, STP, MSOA
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+# Import libraries ----
+library('tidyverse')
+library('lubridate')
+library('glue')
+library('here')
+
+# output processed data to rds ----
+output_dir <- here("output", "report")
+fs::dir_create(output_dir)
+
+roundmid_any <- function(x, to=1){
+  # like ceiling_any, but centers on (integer) midpoint of the rounding points
+  ceiling(x/to)*to - (floor(to/2)*(x!=0))
+}
+
+ceiling_any <- function(x, to=1){
+  # round to nearest 100 millionth to avoid floating point errors
+  ceiling(plyr::round_any(x/to, 1/100000000))*to
+}
+
+# Import processed data ----
+data_fixed <- read_rds(here("output", "data", "data_fixed.rds"))
+data_vax_all <- read_rds(here("output", "data", "data_vax_all.rds"))
+data_vax_all_clean <- read_rds(here("output", "data", "data_vax_all_clean.rds"))
+
+end_date=as.Date("2023-01-01")
+
+
+vax_type_lookup = c(
+  "BNT162b2"="pfizer",
+  "ChAdOx1"="az",
+  "mRNA-1273"="moderna",
+  "BNT162b2/omicron"="pfizeromicron",
+  "mRNA-1273/omicron"="modernaomicron",
+  "BNT162b2/children"="pfizerchildren",
+  "ChAdOx1/2"="az2",
+  "Other"="other",
+)
+
+data_vax <-
+  left_join(
+    data_vax_all,
+    data_fixed,
+    by="patient_id"
+  ) %>%
+  filter(
+    !is.na(vax_date),
+    vax_date <= end_date
+  ) %>%
+  mutate(
+    vax_index = factor(vax_index, levels = sort(unique(vax_index)), labels = paste("Dose", sort(unique(vax_index)))),
+    dose = vax_index,
+    vax_week = floor_date(vax_date, unit =  "week", week_start = 1),
+    vax_type = fct_recode(factor(vax_type, levels=vax_type_lookup), !!!vax_type_lookup),
+    all=""
+  )
+
+
+summary_stratified <- data_vax %>%
+  group_by(
+    vax_index, vax_type, vax_week,
+    sex, ageband, region
+  ) %>%
+  summarise(
+    n=ceiling_any(n(), 100)
+  ) %>%
+  ungroup()
+
+write_csv(summary_stratified, here("output", "report", "stratified_vax_counts.csv"))
+
+
+
+plot_vax_dates <- function(rows, cols){
+
+  summary_by <- data_vax %>%
+    group_by(vax_type, vax_week) %>%
+    group_by({{rows}}, {{cols}}, .add=TRUE) %>%
+    summarise(
+      n=roundmid_any(n(), 6)
+    )
+
+
+  temp_plot <-
+    ggplot(summary_by) +
+    geom_col(
+      aes(x=vax_week, y=n, fill=vax_type, group=vax_type),
+      alpha=0.5,
+      position=position_stack(reverse=TRUE),
+      #position=position_identity(),
+      width=7
+    )+
+    facet_grid(
+      rows=vars({{rows}}),
+      cols=vars({{cols}}),
+      switch="y",
+      space="free_x",
+      scales="free_x"
+    )+
+    labs(
+      x="Date",
+      y=NULL,
+      fill=NULL
+    )+
+    scale_fill_brewer(palette="Set2")+
+    #scale_y_continuous(limits=c(0,100))+
+    scale_x_date(
+      breaks=as.Date(c("2021-01-01","2021-07-01","2022-01-01","2022-07-01","2023-01-01","2023-07-01","2024-01-01")),
+      date_minor_breaks="month",
+      date_labels="%b", # labels = scales::label_date("%b"),
+      sec.axis = sec_axis(
+        breaks=as.Date(c("2021-01-01","2022-01-01","2023-01-01","2024-01-01")),
+        trans = ~as.Date(.),
+        labels = scales::label_date("%Y")
+      )
+    )+
+    theme_minimal()+
+    theme(
+      axis.text.x.top=element_text(hjust=0),
+      axis.text.x.bottom=element_text(hjust=0),
+      strip.text.y.left = element_text(angle = 0, hjust=1),
+      strip.placement = "outside",
+      axis.text.y = element_blank(),
+      legend.position = "bottom"
+    )
+
+  print(temp_plot)
+
+  row_name = deparse(substitute(rows))
+  col_name = deparse(substitute(cols))
+
+  ggsave(here("output","report", glue("vax_dates_{row_name}_{col_name}.png")), plot=temp_plot)
+}
+
+
+plot_vax_dates(ageband, vax_index)
+plot_vax_dates(region, vax_index)
+plot_vax_dates(sex, vax_index)
+plot_vax_dates(dose, all)
+
