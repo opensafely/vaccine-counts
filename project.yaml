@@ -10,3 +10,11 @@ actions:
     outputs:
       highly_sensitive:
         cohort: output/input.feather
+
+  process:
+    run: r:latest analysis/process.R
+    needs: [extract]
+    outputs:
+      highly_sensitive:
+        feather: output/data/*.feather
+
