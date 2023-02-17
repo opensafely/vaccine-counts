@@ -16,7 +16,7 @@ actions:
     needs: [extract]
     outputs:
       highly_sensitive:
-        feather: output/data/*.feather
+        rds: output/data/*.rds
 
   report:
     run: r:latest analysis/report.R
