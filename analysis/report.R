@@ -29,8 +29,6 @@ data_fixed <- read_rds(here("output", "data", "data_fixed.rds"))
 data_vax_all <- read_rds(here("output", "data", "data_vax_all.rds"))
 data_vax_all_clean <- read_rds(here("output", "data", "data_vax_all_clean.rds"))
 
-end_date=as.Date("2023-01-01")
-
 
 vax_type_lookup = c(
   "BNT162b2"="pfizer",
@@ -45,14 +43,9 @@ vax_type_lookup = c(
 
 data_vax <-
   left_join(
-    data_vax_all,
+    data_vax_all_clean,
     data_fixed,
     by="patient_id"
-  ) %>%
-  filter(
-    !is.na(vax_date),
-    vax_date <= end_date,
-    vax_date >= as.Date("2020-06-01")
   ) %>%
   mutate(
     vax_dosenumber = factor(vax_index, levels = sort(unique(vax_index)), labels = paste("Dose", sort(unique(vax_index)))),
@@ -62,7 +55,7 @@ data_vax <-
   )
 
 ## note that all patient characteristics are determined as at the date of vaccination.
-## for exmaple, a person who moves from london to manchester between their first and second dose will be classed as in "london" for their first dose and "north west" for their second dose.
+## for example, a person who moves from london to manchester between their first and second dose will be classed as in "london" for their first dose and "north west" for their second dose.
 ##
 
 

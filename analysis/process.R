@@ -14,6 +14,9 @@ library('arrow')
 library('here')
 library('glue')
 
+start_date=as.Date("2020-06-01")
+end_date=as.Date("2022-12-31")
+
 ## output processed data to rds ----
 fs::dir_create(here("output", "data"))
 
@@ -190,8 +193,10 @@ data_vax_all_clean <-
   # remove vaccine events occurring within 14 days of a previous vaccine event
   data_vax_all %>%
   filter(
+    !is.na(vax_date),
     is.na(vax_interval) | vax_interval>14,
-    vax_date >= as.Date("2020-06-01")
+    vax_date >= start_date,
+    vax_date <= end_date
   ) %>%
   group_by(patient_id) %>%
   mutate(
