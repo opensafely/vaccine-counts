@@ -194,7 +194,7 @@ data_vax_all_clean <-
   data_vax_all %>%
   filter(
     !is.na(vax_date),
-    is.na(vax_interval) | vax_interval>14,
+    is.na(vax_interval) | vax_interval=>14,
     vax_date >= start_date,
     vax_date <= end_date
   ) %>%

@@ -14,6 +14,9 @@ library('here')
 output_dir <- here("output", "report")
 fs::dir_create(output_dir)
 
+start_date=as.Date("2020-06-01")
+end_date=as.Date("2022-12-31")
+
 roundmid_any <- function(x, to=1){
   # like ceiling_any, but centers on (integer) midpoint of the rounding points
   ceiling(x/to)*to - (floor(to/2)*(x!=0))
@@ -59,9 +62,50 @@ data_vax <-
 ##
 
 
+
+# output vax date validation info ----
+
+summary_validation_stratified <-
+  data_vax %>%
+  group_by(
+    vax_index, vax_type
+  ) %>%
+  summarise(
+    n=ceiling_any(n(), 100),
+    n_missing_date=sum(is.na(vax_date)),
+    pct_missing_date=mean(is.na(vax_date)),
+    n_earlier_than_start_date=sum(vax_date<start_date, na.rm=TRUE),
+    pct_earlier_than_start_date=mean(vax_date<start_date, na.rm=TRUE),
+    n_interval_within_14days=sum(vax_interval<14, na.rm=TRUE),
+    pct_interval_within_14days=mean(vax_interval<14, na.rm=TRUE)
+  ) %>%
+  ungroup()
+
+write_csv(summary_validation_stratified, here("output", "report", "validation_stratified.csv"))
+
+# output vax date validation info ----
+
+summary_validation <-
+  data_vax %>%
+  summarise(
+    n=ceiling_any(n(), 100),
+    n_missing_date=sum(is.na(vax_date)),
+    pct_missing_date=mean(is.na(vax_date)),
+    n_earlier_than_start_date=sum(vax_date<start_date, na.rm=TRUE),
+    pct_earlier_than_start_date=mean(vax_date<start_date, na.rm=TRUE),
+    n_interval_within_14days=sum(vax_interval<14, na.rm=TRUE),
+    pct_interval_within_14days=mean(vax_interval<14, na.rm=TRUE)
+  ) %>%
+  ungroup()
+
+write_csv(summary_validation, here("output", "report", "validation.csv"))
+
+
+
 # output fully stratified vaccine counts ----
 
-summary_stratified <- data_vax %>%
+summary_stratified <-
+  data_vax %>%
   group_by(
     vax_index, vax_type, vax_week,
     sex, ageband, region
@@ -71,7 +115,7 @@ summary_stratified <- data_vax %>%
   ) %>%
   ungroup()
 
-write_csv(summary_stratified, here("output", "report", "stratified_vax_counts.csv"))
+write_csv(summary_stratified, here("output", "report", "vax_counts_stratified.csv"))
 
 # output plots of vaccine counts by type, dose number, and other characteristics ----
 
