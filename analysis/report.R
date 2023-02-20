@@ -46,6 +46,19 @@ vax_type_lookup = c(
 
 data_vax <-
   left_join(
+    data_vax_all,
+    data_fixed,
+    by="patient_id"
+  ) %>%
+  mutate(
+    vax_dosenumber = factor(vax_index, levels = sort(unique(vax_index)), labels = paste("Dose", sort(unique(vax_index)))),
+    vax_week = floor_date(vax_date, unit =  "week", week_start = 1),
+    vax_type = fct_recode(factor(vax_type, levels=vax_type_lookup), !!!vax_type_lookup),
+    all=""
+  )
+
+data_vax_clean <-
+  left_join(
     data_vax_all_clean,
     data_fixed,
     by="patient_id"
@@ -56,6 +69,7 @@ data_vax <-
     vax_type = fct_recode(factor(vax_type, levels=vax_type_lookup), !!!vax_type_lookup),
     all=""
   )
+
 
 ## note that all patient characteristics are determined as at the date of vaccination.
 ## for example, a person who moves from london to manchester between their first and second dose will be classed as in "london" for their first dose and "north west" for their second dose.
@@ -122,7 +136,7 @@ write_csv(summary_stratified, here("output", "report", "vax_counts_stratified.cs
 
 plot_vax_dates <- function(rows, cols){
 
-  summary_by <- data_vax %>%
+  summary_by <- data_vax_clean %>%
     group_by(vax_type, vax_week) %>%
     group_by({{rows}}, {{cols}}, .add=TRUE) %>%
     summarise(
@@ -173,7 +187,7 @@ plot_vax_dates <- function(rows, cols){
       legend.position = "bottom"
     )
 
-  print(temp_plot)
+  #print(temp_plot)
 
   row_name = deparse(substitute(rows))
   col_name = deparse(substitute(cols))
@@ -192,7 +206,7 @@ plot_vax_dates(vax_dosenumber, all)
 
 plot_vax_intervals <- function(rows, cols){
 
-  summary_by <- data_vax %>%
+  summary_by <- data_vax_clean %>%
     filter(vax_index != 1) %>%
     group_by(vax_dosenumber, vax_type, vax_interval) %>%
     group_by({{rows}}, {{cols}}, .add=TRUE) %>%
@@ -233,7 +247,7 @@ plot_vax_intervals <- function(rows, cols){
       legend.position = "bottom"
     )
 
-  print(temp_plot)
+  #print(temp_plot)
 
   row_name = deparse(substitute(rows))
   col_name = deparse(substitute(cols))

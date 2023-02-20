@@ -15,7 +15,7 @@ library('here')
 library('glue')
 
 start_date=as.Date("2020-06-01")
-end_date=as.Date("2022-12-31")
+end_date=as.Date("2023-12-31")
 
 ## output processed data to rds ----
 fs::dir_create(here("output", "data"))
@@ -177,7 +177,7 @@ data_vax_all <-
     by=c("patient_id", "vax_date")
   ) %>%
   mutate(
-    type = replace_na(vax_type, "other"),
+    vax_type = replace_na(vax_type, "other"),
   ) %>%
   arrange(patient_id, vax_date) %>%
   group_by(patient_id) %>%
@@ -194,7 +194,7 @@ data_vax_all_clean <-
   data_vax_all %>%
   filter(
     !is.na(vax_date),
-    is.na(vax_interval) | vax_interval=>14,
+    is.na(vax_interval) | vax_interval>=14,
     vax_date >= start_date,
     vax_date <= end_date
   ) %>%
