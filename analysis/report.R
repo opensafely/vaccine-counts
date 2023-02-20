@@ -51,7 +51,8 @@ data_vax <-
   ) %>%
   filter(
     !is.na(vax_date),
-    vax_date <= end_date
+    vax_date <= end_date,
+    vax_date >= as.Date("2020-06-01")
   ) %>%
   mutate(
     vax_dosenumber = factor(vax_index, levels = sort(unique(vax_index)), labels = paste("Dose", sort(unique(vax_index)))),
@@ -179,7 +180,7 @@ plot_vax_intervals <- function(rows, cols){
       scales="free_x"
     )+
     labs(
-      x="Date",
+      x="Interval",
       y=NULL,
       fill=NULL
     )+

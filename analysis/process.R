@@ -189,7 +189,10 @@ write_rds(data_vax_all, here("output", "data", "data_vax_all.rds"), compress="gz
 data_vax_all_clean <-
   # remove vaccine events occurring within 14 days of a previous vaccine event
   data_vax_all %>%
-  filter(is.na(vax_interval) | vax_interval>14) %>%
+  filter(
+    is.na(vax_interval) | vax_interval>14,
+    vax_date >= as.Date("2020-06-01")
+  ) %>%
   group_by(patient_id) %>%
   mutate(
     vax_index = row_number()
