@@ -1,6 +1,6 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Purpose: To assess geograhpcial distribution of moderna / pfizer booster vaccines
-## by region, STP, MSOA
+# Purpose:  To assess distribution of vaccines schedules
+#           in different population subgroups
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
@@ -15,7 +15,7 @@ output_dir <- here("output", "report")
 fs::dir_create(output_dir)
 
 start_date=as.Date("2020-06-01")
-end_date=as.Date("2022-12-31")
+end_date=as.Date("2023-09-01")
 
 roundmid_any <- function(x, to=1){
   # like ceiling_any, but centers on (integer) midpoint of the rounding points
@@ -259,3 +259,142 @@ plot_vax_intervals(ageband, vax_dosenumber)
 plot_vax_intervals(region, vax_dosenumber)
 plot_vax_intervals(sex, vax_dosenumber)
 plot_vax_intervals(vax_dosenumber, all)
+
+
+
+# output plots of time since most recent vaccination by type and other characteristics ----
+
+plot_date_since_last_dose <- function(rows, cols){
+
+  summary_by <- data_vax_clean %>%
+    group_by(patient_id) %>%
+    filter(vax_index == max(vax_index)) %>%
+    mutate(
+      days_since_last_dose = as.integer(end_date - pmax(vax_date, as.Date("2020-12-01"), na.rm=TRUE))
+    ) %>%
+    group_by(vax_type, days_since_last_dose) %>%
+    group_by({{rows}}, {{cols}}, .add=TRUE) %>%
+    summarise(
+      n=roundmid_any(n(), 6)
+    )
+
+  temp_plot <-
+    ggplot(summary_by) +
+    geom_col(
+      aes(x=days_since_last_dose, y=n, fill=vax_type, group=vax_type),
+      alpha=0.5,
+      position=position_stack(reverse=TRUE),
+      #position=position_identity(),
+      width=1
+    )+
+    facet_grid(
+      rows=vars({{rows}}),
+      cols=vars({{cols}}),
+      switch="y",
+      space="free_x",
+      scales="free_x"
+    )+
+    labs(
+      x="Days since most recent COVID-19 vaccine receipt",
+      y=NULL,
+      fill=NULL
+    )+
+    scale_fill_brewer(palette="Set2")+
+    scale_x_continuous(breaks=as.integer((0:5)*365.25))+
+    theme_minimal()+
+    theme(
+      axis.text.x.top=element_text(hjust=0),
+      axis.text.x.bottom=element_text(hjust=0),
+      strip.text.y.left = element_text(angle = 0, hjust=1),
+      strip.placement = "outside",
+      axis.text.y = element_blank(),
+      legend.position = "bottom"
+    )
+
+  #print(temp_plot)
+
+  row_name = deparse(substitute(rows))
+  col_name = deparse(substitute(cols))
+
+  ggsave(here("output","report", glue("days_time_last_dose_{row_name}_{col_name}.png")), plot=temp_plot)
+}
+
+plot_days_since_last_dose(ageband, all)
+plot_days_since_last_dose(region, all)
+plot_days_since_last_dose(sex, all)
+#plot_days_since_last_dose(all, all)
+
+
+
+# output plots of date of last dose by type and other characteristics ----
+
+plot_date_of_last_dose <- function(rows){
+
+  default_date <- as.Date("2020-12-01")
+
+  summary_by <- data_vax_clean %>%
+    group_by(patient_id) %>%
+    filter(vax_index == max(vax_index)) %>%
+    mutate(
+      last_vax_date = pmax(vax_date, default_date, na.rm=TRUE) # replace "no first dose" with "2020-12-01" and relabel later
+    ) %>%
+    group_by(vax_type, last_vax_date) %>%
+    group_by({{rows}}, .add=TRUE) %>%
+    summarise(
+      n=roundmid_any(n(), 6)
+    )
+
+  temp_plot <-
+    ggplot(summary_by) +
+    geom_col(
+      aes(x=last_vax_date, y=n, fill=vax_type, group=vax_type),
+      alpha=0.5,
+      position=position_stack(reverse=TRUE),
+      #position=position_identity(),
+      width=1
+    )+
+    facet_grid(
+      rows=vars({{rows}}),
+      #cols=vars({{cols}}),
+      switch="y",
+      space="free_x",
+      scales="free_x"
+    )+
+    labs(
+      x="Days since most recent COVID-19 vaccine receipt",
+      y=NULL,
+      fill=NULL
+    )+
+    scale_fill_brewer(palette="Set2")+
+    scale_x_date(
+      breaks=c(default_date, as.Date(c("2021-01-01","2021-07-01","2022-01-01","2022-07-01","2023-01-01","2023-07-01","2024-01-01"))),
+      date_minor_breaks="month",
+      labels = ~{c("Unvaccinated", scales::label_date("%b")(.x[-1]))},
+      sec.axis = sec_axis(
+        breaks=as.Date(c("2021-01-01","2022-01-01","2023-01-01","2024-01-01")),
+        trans = ~as.Date(.),
+        labels = scales::label_date("%Y")
+      )
+    )+
+    theme_minimal()+
+    theme(
+      axis.text.x.top=element_text(hjust=0),
+      axis.text.x.bottom=element_text(hjust=0),
+      strip.text.y.left = element_text(angle = 0, hjust=1),
+      strip.placement = "outside",
+      axis.text.y = element_blank(),
+      legend.position = "bottom"
+    )
+
+  #print(temp_plot)
+
+  row_name = deparse(substitute(rows))
+  #col_name = deparse(substitute(cols))
+
+  ggsave(here("output","report", glue("last_vax_date_{row_name}.png")), plot=temp_plot)
+}
+
+plot_date_of_last_dose(ageband)
+plot_date_of_last_dose(region)
+plot_date_of_last_dose(sex)
+plot_date_of_last_dose(all)
