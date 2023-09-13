@@ -1,4 +1,8 @@
 
+##########################
+# extract patient information as at each vaccination date
+##########################
+
 from cohortextractor import (
   StudyDefinition,
   patients,
@@ -186,7 +190,7 @@ study = StudyDefinition(
     # use 1900 to capture all possible recorded covid vaccinations, including date errors
     # any vaccines occurring before national rollout can be later excluded if necessary
     index_date = "1900-01-01",
-    n = 7
+    n = 10
   ),
   
   ## all other known covid-19 vaccine product names in use
@@ -196,7 +200,7 @@ study = StudyDefinition(
   **vaccination_date_X(
     name = "covid_vax_pfizer",
     index_date = "1900-01-01", 
-    n = 7,
+    n = 10,
     product_name_matches="COVID-19 mRNA Vaccine Comirnaty 30micrograms/0.3ml dose conc for susp for inj MDV (Pfizer)"
   ),
   
@@ -204,7 +208,7 @@ study = StudyDefinition(
   **vaccination_date_X(
     name = "covid_vax_az",
     index_date = "1900-01-01",
-    n = 7,
+    n = 10,
     product_name_matches="COVID-19 Vaccine Vaxzevria 0.5ml inj multidose vials (AstraZeneca)"
   ),
   
@@ -212,7 +216,7 @@ study = StudyDefinition(
   **vaccination_date_X(
     name = "covid_vax_moderna",
     index_date = "1900-01-01",
-    n = 7,
+    n = 10,
     product_name_matches="COVID-19 mRNA Vaccine Spikevax (nucleoside modified) 0.1mg/0.5mL dose disp for inj MDV (Moderna)"
   ),
   
@@ -220,7 +224,7 @@ study = StudyDefinition(
   **vaccination_date_X(
     name = "covid_vax_pfizeromicron",
     index_date = "1900-01-01", 
-    n = 7,
+    n = 10,
     product_name_matches="Comirnaty Original/Omicron BA.1 COVID-19 Vacc md vials"
   ),
   
@@ -228,7 +232,7 @@ study = StudyDefinition(
   **vaccination_date_X(
     name = "covid_vax_modernaomicron",
     index_date = "1900-01-01",
-    n = 7,
+    n = 10,
     product_name_matches="COVID-19 Vac Spikevax (Zero)/(Omicron) inj md vials"
   ),
   
@@ -236,7 +240,7 @@ study = StudyDefinition(
   **vaccination_date_X(
     name = "covid_vax_pfizerchildren",
     index_date = "1900-01-01",
-    n = 7,
+    n = 10,
     product_name_matches="COVID-19 mRNA Vaccine Comirnaty Children 5-11yrs 10mcg/0.2ml dose conc for disp for inj MDV (Pfizer)"
   ),
   
@@ -244,7 +248,7 @@ study = StudyDefinition(
   **vaccination_date_X(
     name = "covid_vax_az2",
     index_date = "1900-01-01",
-    n = 7,
+    n = 10,
     product_name_matches="COVID-19 Vac AZD2816 (ChAdOx1 nCOV-19) 3.5x10*9 viral part/0.5ml dose sol for inj MDV (AstraZeneca)"
   ),
   
