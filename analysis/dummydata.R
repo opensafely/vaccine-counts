@@ -106,7 +106,10 @@ sim_list_varying = splice(
   sim_list_varying_i(4),
   sim_list_varying_i(5),
   sim_list_varying_i(6),
-  sim_list_varying_i(7)
+  sim_list_varying_i(7),
+  sim_list_varying_i(8),
+  sim_list_varying_i(9),
+  sim_list_varying_i(10),
 )
 
 sim_list_vax_info = lst(
