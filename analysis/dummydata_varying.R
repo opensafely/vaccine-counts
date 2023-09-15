@@ -10,7 +10,7 @@ remotes::install_github("https://github.com/wjchulme/dd4d")
 library('dd4d')
 
 
-population_size <- 20000
+population_size <- 1000
 
 # get nth largest value from list
 nthmax <- function(x, n=1){
@@ -41,18 +41,6 @@ known_variables <- c(
   "index_date", "studystart_date", "firstpfizer_date", "firstaz_date", "firstmoderna_date",
   "index_day",  "studystart_day", "firstpfizer_day", "firstaz_day", "firstmoderna_day"
 )
-
-sim_list_fixed = lst(
-  sex = bn_node(
-    ~rfactor(n=..n, levels = c("F", "M"), p = c(0.51, 0.49)),
-    missing_rate = ~0.001 # this is shorthand for ~(rbernoulli(n=..n, p = 0.2))
-  ),
-  death_day = bn_node(
-    ~as.integer(runif(n=..n, index_day, index_day+2000)),
-    missing_rate = ~0.99
-  )
-)
-
 
 sim_list_varying_i <- function(i){
 
@@ -106,7 +94,10 @@ sim_list_varying = splice(
   sim_list_varying_i(4),
   sim_list_varying_i(5),
   sim_list_varying_i(6),
-  sim_list_varying_i(7)
+  sim_list_varying_i(7),
+  sim_list_varying_i(8),
+  sim_list_varying_i(9),
+  sim_list_varying_i(10)
 )
 
 sim_list_vax_info = lst(
@@ -148,21 +139,21 @@ sim_list_vax_info = lst(
     missing_rate = ~0.99,
     needs = "any_covid_vax_6_day"
   ),
-  # any_covid_vax_8_day = bn_node(
-  #   ~runif(n=..n, any_covid_vax_7_day+300, any_covid_vax_7_day+400),
-  #   missing_rate = ~0.99,
-  #   needs = "any_covid_vax_7_day"
-  # ),
-  # any_covid_vax_9_day = bn_node(
-  #   ~runif(n=..n, any_covid_vax_8_day+300, any_covid_vax_8_day+400),
-  #   missing_rate = ~0.99,
-  #   needs = "any_covid_vax_8_day"
-  # ),
-  # any_covid_vax_10_day = bn_node(
-  #   ~runif(n=..n, any_covid_vax_9_day+300, any_covid_vax_9_day+400),
-  #   missing_rate = ~0.99,
-  #   needs = "any_covid_vax_9_day"
-  # ),
+  any_covid_vax_8_day = bn_node(
+    ~runif(n=..n, any_covid_vax_7_day+300, any_covid_vax_7_day+400),
+    missing_rate = ~0.99,
+    needs = "any_covid_vax_7_day"
+  ),
+  any_covid_vax_9_day = bn_node(
+    ~runif(n=..n, any_covid_vax_8_day+300, any_covid_vax_8_day+400),
+    missing_rate = ~0.99,
+    needs = "any_covid_vax_8_day"
+  ),
+  any_covid_vax_10_day = bn_node(
+    ~runif(n=..n, any_covid_vax_9_day+300, any_covid_vax_9_day+400),
+    missing_rate = ~0.99,
+    needs = "any_covid_vax_9_day"
+  ),
 
   covid_vax_1_type = bn_node(~rcat(n=..n, c("pfizer","az"), c(0.5,0.5)), keep=FALSE),
   covid_vax_2_type = bn_node(~if_else(runif(..n)<0.98, covid_vax_1_type, "az"), keep=FALSE),
@@ -171,9 +162,9 @@ sim_list_vax_info = lst(
   covid_vax_5_type = bn_node(~rcat(n=..n, c("pfizer","moderna"), c(0.5,0.5)), keep=FALSE),
   covid_vax_6_type = bn_node(~rcat(n=..n, c("pfizer","moderna"), c(0.5,0.5)), keep=FALSE),
   covid_vax_7_type = bn_node(~rcat(n=..n, c("pfizer","moderna"), c(0.5,0.5)), keep=FALSE),
-  # covid_vax_8_type = bn_node(~rcat(n=..n, c("pfizer","moderna"), c(0.5,0.5)), keep=FALSE),
-  # covid_vax_9_type = bn_node(~rcat(n=..n, c("pfizer","moderna"), c(0.5,0.5)), keep=FALSE),
-  # covid_vax_10_type = bn_node(~rcat(n=..n, c("pfizer","moderna"), c(0.5,0.5)), keep=FALSE),
+  covid_vax_8_type = bn_node(~rcat(n=..n, c("pfizer","moderna"), c(0.5,0.5)), keep=FALSE),
+  covid_vax_9_type = bn_node(~rcat(n=..n, c("pfizer","moderna"), c(0.5,0.5)), keep=FALSE),
+  covid_vax_10_type = bn_node(~rcat(n=..n, c("pfizer","moderna"), c(0.5,0.5)), keep=FALSE),
 
 
   # pfizer
@@ -211,6 +202,21 @@ sim_list_vax_info = lst(
     ~any_covid_vax_7_day,
     missing_rate = ~1-(covid_vax_7_type=="pfizer"),
     needs = "any_covid_vax_7_day"
+  ),
+  covid_vax_pfizer_8_day = bn_node(
+    ~any_covid_vax_8_day,
+    missing_rate = ~1-(covid_vax_8_type=="pfizer"),
+    needs = "any_covid_vax_8_day"
+  ),
+  covid_vax_pfizer_9_day = bn_node(
+    ~any_covid_vax_9_day,
+    missing_rate = ~1-(covid_vax_9_type=="pfizer"),
+    needs = "any_covid_vax_9_day"
+  ),
+  covid_vax_pfizer_10_day = bn_node(
+    ~any_covid_vax_10_day,
+    missing_rate = ~1-(covid_vax_10_type=="pfizer"),
+    needs = "any_covid_vax_10_day"
   ),
 
 
@@ -250,6 +256,21 @@ sim_list_vax_info = lst(
     missing_rate = ~1-(covid_vax_7_type=="az"),
     needs = "any_covid_vax_7_day"
   ),
+  covid_vax_az_8_day = bn_node(
+    ~any_covid_vax_8_day,
+    missing_rate = ~1-(covid_vax_8_type=="az"),
+    needs = "any_covid_vax_8_day"
+  ),
+  covid_vax_az_9_day = bn_node(
+    ~any_covid_vax_9_day,
+    missing_rate = ~1-(covid_vax_9_type=="az"),
+    needs = "any_covid_vax_9_day"
+  ),
+  covid_vax_az_10_day = bn_node(
+    ~any_covid_vax_10_day,
+    missing_rate = ~1-(covid_vax_10_type=="az"),
+    needs = "any_covid_vax_10_day"
+  ),
 
 
   # moderna
@@ -288,6 +309,22 @@ sim_list_vax_info = lst(
     missing_rate = ~1-(covid_vax_7_type=="moderna"),
     needs = "any_covid_vax_7_day"
   ),
+  covid_vax_moderna_8_day = bn_node(
+    ~any_covid_vax_8_day,
+    missing_rate = ~1-(covid_vax_8_type=="moderna"),
+    needs = "any_covid_vax_8_day"
+  ),
+  covid_vax_moderna_9_day = bn_node(
+    ~any_covid_vax_9_day,
+    missing_rate = ~1-(covid_vax_9_type=="moderna"),
+    needs = "any_covid_vax_9_day"
+  ),
+  covid_vax_moderna_10_day = bn_node(
+    ~any_covid_vax_10_day,
+    missing_rate = ~1-(covid_vax_10_type=="moderna"),
+    needs = "any_covid_vax_10_day"
+  ),
+
 
   # pfizeromicron
   covid_vax_pfizeromicron_1_day = bn_node(
@@ -324,6 +361,21 @@ sim_list_vax_info = lst(
     ~any_covid_vax_7_day,
     missing_rate = ~1-(covid_vax_7_type=="pfizeromicron"),
     needs = "any_covid_vax_7_day"
+  ),
+  covid_vax_pfizeromicron_8_day = bn_node(
+    ~any_covid_vax_8_day,
+    missing_rate = ~1-(covid_vax_8_type=="pfizeromicron"),
+    needs = "any_covid_vax_8_day"
+  ),
+  covid_vax_pfizeromicron_9_day = bn_node(
+    ~any_covid_vax_9_day,
+    missing_rate = ~1-(covid_vax_9_type=="pfizeromicron"),
+    needs = "any_covid_vax_9_day"
+  ),
+  covid_vax_pfizeromicron_10_day = bn_node(
+    ~any_covid_vax_10_day,
+    missing_rate = ~1-(covid_vax_10_type=="pfizeromicron"),
+    needs = "any_covid_vax_10_day"
   ),
 
   # modernaomicron
@@ -362,6 +414,21 @@ sim_list_vax_info = lst(
     missing_rate = ~1-(covid_vax_7_type=="modernaomicron"),
     needs = "any_covid_vax_7_day"
   ),
+  covid_vax_modernaomicron_8_day = bn_node(
+    ~any_covid_vax_8_day,
+    missing_rate = ~1-(covid_vax_8_type=="modernaomicron"),
+    needs = "any_covid_vax_8_day"
+  ),
+  covid_vax_modernaomicron_9_day = bn_node(
+    ~any_covid_vax_9_day,
+    missing_rate = ~1-(covid_vax_9_type=="modernaomicron"),
+    needs = "any_covid_vax_9_day"
+  ),
+  covid_vax_modernaomicron_10_day = bn_node(
+    ~any_covid_vax_10_day,
+    missing_rate = ~1-(covid_vax_10_type=="modernaomicron"),
+    needs = "any_covid_vax_10_day"
+  ),
 
   # pfizerchildren
   covid_vax_pfizerchildren_1_day = bn_node(
@@ -398,6 +465,21 @@ sim_list_vax_info = lst(
     ~any_covid_vax_7_day,
     missing_rate = ~1-(covid_vax_7_type=="pfizerchildren"),
     needs = "any_covid_vax_7_day"
+  ),
+  covid_vax_pfizerchildren_8_day = bn_node(
+    ~any_covid_vax_8_day,
+    missing_rate = ~1-(covid_vax_8_type=="pfizerchildren"),
+    needs = "any_covid_vax_8_day"
+  ),
+  covid_vax_pfizerchildren_9_day = bn_node(
+    ~any_covid_vax_9_day,
+    missing_rate = ~1-(covid_vax_9_type=="pfizerchildren"),
+    needs = "any_covid_vax_9_day"
+  ),
+  covid_vax_pfizerchildren_10_day = bn_node(
+    ~any_covid_vax_10_day,
+    missing_rate = ~1-(covid_vax_10_type=="pfizerchildren"),
+    needs = "any_covid_vax_10_day"
   ),
 
 
@@ -437,13 +519,27 @@ sim_list_vax_info = lst(
     missing_rate = ~1-(covid_vax_7_type=="az2"),
     needs = "any_covid_vax_7_day"
   ),
+  covid_vax_az2_8_day = bn_node(
+    ~any_covid_vax_8_day,
+    missing_rate = ~1-(covid_vax_8_type=="az2"),
+    needs = "any_covid_vax_8_day"
+  ),
+  covid_vax_az2_9_day = bn_node(
+    ~any_covid_vax_9_day,
+    missing_rate = ~1-(covid_vax_9_type=="az2"),
+    needs = "any_covid_vax_9_day"
+  ),
+  covid_vax_az2_10_day = bn_node(
+    ~any_covid_vax_10_day,
+    missing_rate = ~1-(covid_vax_10_type=="az2"),
+    needs = "any_covid_vax_10_day"
+  ),
 
 )
 
 
 sim_list <- splice(
   sim_list_vax_info,
-  sim_list_fixed,
   sim_list_varying
 )
 
@@ -466,6 +562,6 @@ dummydata_processed <- dummydata %>%
 
 
 fs::dir_create(here("lib", "dummydata"))
-write_feather(dummydata_processed, sink = here("lib", "dummydata", "dummyinput.feather"))
+write_feather(dummydata_processed, sink = here("lib", "dummydata", "dummyinput_varying.feather"))
 
 

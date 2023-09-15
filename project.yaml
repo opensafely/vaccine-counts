@@ -5,18 +5,25 @@ expectations:
 
 actions:
 
-  extract:
-    run: cohortextractor:latest generate_cohort --output-format feather --study-definition study_definition
+  extract_fixed:
+    run: cohortextractor:latest generate_cohort --output-format feather --study-definition study_definition_fixed
     outputs:
       highly_sensitive:
-        cohort: output/input.feather
+        cohort: output/input_fixed.feather
+
+  extract_varying:
+    run: cohortextractor:latest generate_cohort --output-format feather --study-definition study_definition_varying
+    outputs:
+      highly_sensitive:
+        cohort: output/input_varying.feather
+
 
   process:
     run: r:latest analysis/process.R
-    needs: [extract]
+    needs: [extract_fixed, extract_varying]
     outputs:
       highly_sensitive:
-        rds: output/data/*.rds
+        rds: output/process/*.rds
 
   report:
     run: r:latest analysis/report.R
