@@ -10,7 +10,7 @@ remotes::install_github("https://github.com/wjchulme/dd4d")
 library('dd4d')
 
 
-population_size <- 20000
+population_size <- 1000
 
 # get nth largest value from list
 nthmax <- function(x, n=1){
@@ -41,18 +41,6 @@ known_variables <- c(
   "index_date", "studystart_date", "firstpfizer_date", "firstaz_date", "firstmoderna_date",
   "index_day",  "studystart_day", "firstpfizer_day", "firstaz_day", "firstmoderna_day"
 )
-
-sim_list_fixed = lst(
-  sex = bn_node(
-    ~rfactor(n=..n, levels = c("F", "M"), p = c(0.51, 0.49)),
-    missing_rate = ~0.001 # this is shorthand for ~(rbernoulli(n=..n, p = 0.2))
-  ),
-  death_day = bn_node(
-    ~as.integer(runif(n=..n, index_day, index_day+2000)),
-    missing_rate = ~0.99
-  )
-)
-
 
 sim_list_varying_i <- function(i){
 
@@ -109,7 +97,7 @@ sim_list_varying = splice(
   sim_list_varying_i(7),
   sim_list_varying_i(8),
   sim_list_varying_i(9),
-  sim_list_varying_i(10),
+  sim_list_varying_i(10)
 )
 
 sim_list_vax_info = lst(
@@ -217,7 +205,7 @@ sim_list_vax_info = lst(
   ),
   covid_vax_pfizer_8_day = bn_node(
     ~any_covid_vax_8_day,
-    missing_rate = ~1-(covid_vax8_type=="pfizer"),
+    missing_rate = ~1-(covid_vax_8_type=="pfizer"),
     needs = "any_covid_vax_8_day"
   ),
   covid_vax_pfizer_9_day = bn_node(
@@ -552,7 +540,6 @@ sim_list_vax_info = lst(
 
 sim_list <- splice(
   sim_list_vax_info,
-  sim_list_fixed,
   sim_list_varying
 )
 
@@ -575,6 +562,6 @@ dummydata_processed <- dummydata %>%
 
 
 fs::dir_create(here("lib", "dummydata"))
-write_feather(dummydata_processed, sink = here("lib", "dummydata", "dummyinput.feather"))
+write_feather(dummydata_processed, sink = here("lib", "dummydata", "dummyinput_varying.feather"))
 
 
