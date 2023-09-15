@@ -44,9 +44,9 @@ summarise_vax_history = function(data) {
       Q3_dose_count = quantile(n_vax, probs = 0.75),
       Vax_past_12m = plyr::round_any(sum(vax_past_12m==1, na.rm=TRUE), rounding_threshold),
       Vax_past_24m = plyr::round_any(sum(vax_past_24m==1, na.rm=TRUE), rounding_threshold),
-      Median_time_to_last_dose = round(median(time_since_last_vax_months, na.rm=TRUE),1),
-      Q1_dose_time_since_last_dose = round(quantile(time_since_last_vax_months, probs = 0.25, na.rm=TRUE),1),
-      Q3_dose_time_since_last_dose = round(quantile(time_since_last_vax_months, probs = 0.75, na.rm=TRUE),1),
+      Median_time_since_last_dose = round(median(time_since_last_vax_months, na.rm=TRUE),0),
+      Q1_dose_time_since_last_dose = round(quantile(time_since_last_vax_months, probs = 0.25, na.rm=TRUE),0),
+      Q3_dose_time_since_last_dose = round(quantile(time_since_last_vax_months, probs = 0.75, na.rm=TRUE),0),
     )
 }
 
@@ -139,7 +139,7 @@ tab_combined_clean <- tab_combined %>%
     `Median (IQR) dose count` = paste0(Median_dose_count," (",Q1_dose_count,"-",Q3_dose_count,")"),
     `Vaccinated in past 12 months, n (%)` = paste0(Vax_past_12m," (",round(Vax_past_12m/N*100,1),"%)"),
     `Vaccinated in past 24 months, n (%)` = paste0(Vax_past_24m," (",round(Vax_past_24m/N*100,1),"%)"),
-    `Median (IQR) time in months to last dose` = paste0(Median_time_to_last_dose," (",Q1_dose_time_since_last_dose,"-",Q3_dose_time_since_last_dose,")")
+    `Median (IQR) time in months to last dose` = paste0(Median_time_since_last_dose," (",Q1_dose_time_since_last_dose,"-",Q3_dose_time_since_last_dose,")")
   ) %>%
   select(Population, Subgroup, Level, N, 
          `0 dose`, `1 dose`, `2 dose`, `3 dose`, `4 dose`, `5+ dose`,
