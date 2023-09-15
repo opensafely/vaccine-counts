@@ -225,21 +225,11 @@ define_vars <- function(data_extracted) {
         sev_mental_ill == 1 ~ "Yes"
       ),
       
-      # dose counts at start of delta era
+      # dose counts pre index
       n_vax = fct_case_when(
         covid_vax_date_7<=index_date ~ "7",
         covid_vax_date_6<=index_date ~ "6",
         covid_vax_date_5<=index_date ~ "5",
-        covid_vax_date_4<=index_date ~ "4",
-        covid_vax_date_3<=index_date ~ "3",
-        covid_vax_date_2<=index_date ~ "2",
-        covid_vax_date_1<=index_date ~ "1",
-        TRUE ~ "0"
-      ),
-      
-      # dose counts at start of delta era
-      n_vax_grouped = fct_case_when(
-        covid_vax_date_5<=index_date ~ "5+",
         covid_vax_date_4<=index_date ~ "4",
         covid_vax_date_3<=index_date ~ "3",
         covid_vax_date_2<=index_date ~ "2",

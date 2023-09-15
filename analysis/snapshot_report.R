@@ -19,7 +19,7 @@ library(reshape2)
 data <- read_rds(here::here("output", "snapshot", paste0("processed_snapshot.rds")))
 
 # Recode n_vax
-data$n_vax = as.numeric(data$n_vax)
+data$n_vax = as.numeric(as.character(data$n_vax))
 
 # Define broad age subsets for stratified analysis
 data_50to64 <- subset(data, agegroup_broad=="50-64")
