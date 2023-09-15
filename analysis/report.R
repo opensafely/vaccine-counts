@@ -167,16 +167,15 @@ plot_vax_dates <- function(rows, cols){
       fill=NULL
     )+
     scale_fill_brewer(palette="Set2")+
-    #scale_y_continuous(limits=c(0,100))+
     scale_x_date(
-      breaks=as.Date(c("2021-01-01","2021-07-01","2022-01-01","2022-07-01","2023-01-01","2023-07-01","2024-01-01")),
+      breaks=as.Date(c("2021-01-01","2022-01-01","2023-01-01","2024-01-01")),
       date_minor_breaks="month",
-      date_labels="%b", # labels = scales::label_date("%b"),
-      sec.axis = sec_axis(
-        breaks=as.Date(c("2021-01-01","2022-01-01","2023-01-01","2024-01-01")),
-        trans = ~as.Date(.),
-        labels = scales::label_date("%Y")
-      )
+      date_labels="%Y", # labels = scales::label_date("%b"),
+      # sec.axis = sec_axis(
+      #   breaks=as.Date(c("2021-01-01","2022-01-01","2023-01-01","2024-01-01")),
+      #   trans = ~as.Date(.),
+      #   labels = scales::label_date("%Y")
+      # )
     )+
     theme_minimal()+
     theme(
@@ -184,7 +183,8 @@ plot_vax_dates <- function(rows, cols){
       axis.text.x.bottom=element_text(hjust=0),
       strip.text.y.left = element_text(angle = 0, hjust=1),
       strip.placement = "outside",
-      axis.text.y = element_blank(),
+      axis.ticks.x = element_line(),
+      #axis.text.y = element_blank(),
       legend.position = "bottom"
     )
 
@@ -207,6 +207,9 @@ plot_vax_intervals <- function(rows, cols){
 
   summary_by <- data_vax_clean %>%
     filter(vax_index != 1) %>%
+    mutate(
+      vax_interval = roundmid_any(vax_interval+1, 7) #to split into 0-6, 7-13, 14-20, 21-28, ....
+    ) %>%
     group_by(vax_dosenumber, vax_type, vax_interval) %>%
     group_by({{rows}}, {{cols}}, .add=TRUE) %>%
     summarise(
@@ -220,7 +223,7 @@ plot_vax_intervals <- function(rows, cols){
       alpha=0.5,
       position=position_stack(reverse=TRUE),
       #position=position_identity(),
-      width=1
+      width=7
     )+
     facet_grid(
       rows=vars({{rows}}),
@@ -230,23 +233,29 @@ plot_vax_intervals <- function(rows, cols){
       scales="free_x"
     )+
     labs(
-      x="Interval",
+      x="Interval (days)",
       y=NULL,
       fill=NULL
     )+
     scale_fill_brewer(palette="Set2")+
+    scale_x_continuous(
+      breaks = (0:100)*4*7,
+      #limits = c(0, NA),
+      sec.axis = sec_axis(
+        trans = ~./7
+      )
+    )+
     #scale_y_continuous(limits=c(0,100))+
     theme_minimal()+
     theme(
-      axis.text.x.top=element_text(hjust=0),
-      axis.text.x.bottom=element_text(hjust=0),
       strip.text.y.left = element_text(angle = 0, hjust=1),
       strip.placement = "outside",
-      axis.text.y = element_blank(),
+      axis.ticks.x = element_line(),
+      #axis.text.y = element_blank(),
       legend.position = "bottom"
     )
 
-  #print(temp_plot)
+  print(temp_plot)
 
   row_name = deparse(substitute(rows))
   col_name = deparse(substitute(cols))
@@ -289,15 +298,19 @@ stopifnot("data_last_vax_date_clean should not have mnultiple rows per patient" 
 
 data_snapshot <-
   left_join(
-    data_fixed %>% select(
-      patient_id,
-      sex,
-      age,
-      ageband,
-      region,
-      stp,
-      death_date
-    ),
+    data_fixed %>%
+      filter(
+        registered,
+        is.na(death_date) | (death_date >= snapshot_date),
+      ) %>%
+      select(
+        patient_id,
+        sex,
+        age,
+        ageband,
+        region,
+        stp
+      ),
     data_last_vax_date_clean,
     by="patient_id"
   ) %>%
