@@ -23,7 +23,7 @@ actions:
     needs: [extract_fixed, extract_varying]
     outputs:
       highly_sensitive:
-        rds: output/data/*.rds
+        rds: output/process/*.rds
 
   report:
     run: r:latest analysis/report.R
