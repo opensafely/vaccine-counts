@@ -130,15 +130,15 @@ tab_combined <- rbind(tab_whole_pop, tab_50to64, tab_65plus) %>%
 ## Clean output
 tab_combined_clean <- tab_combined %>%
   mutate(
-    `0 dose` = paste0(Dose_0," (",round(Dose_0/N,1),"%)"),
-    `1 dose` = paste0(Dose_1," (",round(Dose_1/N,1),"%)"),
-    `2 dose` = paste0(Dose_2," (",round(Dose_2/N,1),"%)"),
-    `3 dose` = paste0(Dose_3," (",round(Dose_3/N,1),"%)"),
-    `4 dose` = paste0(Dose_4," (",round(Dose_4/N,1),"%)"),
-    `5+ dose` = paste0(Dose_5plus," (",round(Dose_5plus/N,1),"%)"),
+    `0 dose` = paste0(Dose_0," (",round(Dose_0/N*100,1),"%)"),
+    `1 dose` = paste0(Dose_1," (",round(Dose_1/N*100,1),"%)"),
+    `2 dose` = paste0(Dose_2," (",round(Dose_2/N*100,1),"%)"),
+    `3 dose` = paste0(Dose_3," (",round(Dose_3/N*100,1),"%)"),
+    `4 dose` = paste0(Dose_4," (",round(Dose_4/N*100,1),"%)"),
+    `5+ dose` = paste0(Dose_5plus," (",round(Dose_5plus/N*100,1),"%)"),
     `Median (IQR) dose count` = paste0(Median_dose_count," (",Q1_dose_count,"-",Q3_dose_count,")"),
-    `Vaccinated in past 12 months, n (%)` = paste0(Vax_past_12m," (",round(Vax_past_12m/N,1),"%)"),
-    `Vaccinated in past 24 months, n (%)` = paste0(Vax_past_24m," (",round(Vax_past_24m/N,1),"%)"),
+    `Vaccinated in past 12 months, n (%)` = paste0(Vax_past_12m," (",round(Vax_past_12m/N*100,1),"%)"),
+    `Vaccinated in past 24 months, n (%)` = paste0(Vax_past_24m," (",round(Vax_past_24m/N*100,1),"%)"),
     `Median (IQR) time in months to last dose` = paste0(Median_time_to_last_dose," (",Q1_dose_time_since_last_dose,"-",Q3_dose_time_since_last_dose,")")
   ) %>%
   select(Population, Subgroup, Level, N, 
