@@ -31,7 +31,7 @@ fs::dir_create(output_dir)
 data_extract_fixed <-
   import_extract(
     here("lib", "dummydata", "dummyinput_fixed.feather"),
-    here("output", "input_fixed.feather")
+    here("output", "extracts", "extract_fixed.arrow")
   )
 
 data_processed_fixed <- data_extract_fixed %>%
@@ -89,7 +89,7 @@ rm(data_extract_fixed)
 data_extract_varying <-
   import_extract(
     here("lib", "dummydata", "dummyinput_varying.feather"),
-    here("output", "input_varying.feather")
+    here("output", "extracts", "extract_varying.arrow")
   )
 
 
@@ -115,7 +115,7 @@ standardise_characteristics <- function(i){
   )
 }
 
-data_processed_fixed <- data_extract_varying %>%
+data_processed_varying <- data_extract_varying %>%
   mutate(
 
     !!!standardise_characteristics(1),
@@ -133,14 +133,14 @@ data_processed_fixed <- data_extract_varying %>%
 
 # reshape vaccination data ----
 
-data_vax_any <-
-  data_processed_fixed %>%
+data_vax <-
+  data_processed_varying %>%
   select(
     patient_id,
-    matches("any_covid_vax\\_\\d+\\_date"),
-    #matches("product_type_\\d+\\"),
+    matches("covid_vax\\_\\d+\\_date"),
+    matches("covid_vax_type_\\d+"),
     matches("registered_\\d+"),
-    matches("dereg_\\d+"),
+    matches("deregistration_\\d+"),
     matches("age_\\d+"),
     matches("ageband_\\d+"),
     matches("region_\\d+"),
@@ -153,44 +153,25 @@ data_vax_any <-
     values_drop_na = TRUE,
     names_transform = list(vax_index = as.integer)
   ) %>%
-  rename(vax_date = any_covid_vax) %>%
-  arrange(patient_id, vax_date)
-
-data_vax_type <-
-  data_processed_fixed %>%
-  select(patient_id, matches("^covid\\_\\w+\\_\\d+\\_date")) %>%
-  pivot_longer(
-    cols = -patient_id,
-    names_to = c(NA, "vax_type", "vax_index"),
-    names_pattern = "^(.*)_(\\w+)_(\\d+)_date",
-    values_to = "date",
-    values_drop_na = TRUE,
-  ) %>%
-  rename(vax_date = date) %>%
-  arrange(patient_id, vax_date)
-
-data_vax_all <-
-  left_join(
-    data_vax_any,
-    data_vax_type %>% select(-vax_index),
-    by=c("patient_id", "vax_date")
-  ) %>%
-  mutate(
-    vax_type = replace_na(vax_type, "other"),
+  rename(
+    vax_date = covid_vax,
+    vax_type = covid_vax_type,
   ) %>%
   arrange(patient_id, vax_date) %>%
+  mutate(
+    vax_type = fct_recode(factor(vax_type,vax_product_lookup), !!!vax_product_lookup) %>% fct_explicit_na("other")
+  ) %>%
   group_by(patient_id) %>%
   mutate(
     vax_interval = as.integer(vax_date - lag(vax_date,1))
   ) %>%
   ungroup()
 
+write_rds(data_vax, fs::path(output_dir, "data_vax.rds"), compress="gz")
 
-write_rds(data_vax_all, fs::path(output_dir, "data_vax_all.rds"), compress="gz")
-
-data_vax_all_clean <-
+data_vax_clean <-
   # remove vaccine events occurring within 14 days of a previous vaccine event
-  data_vax_all %>%
+  data_vax %>%
   filter(
     !is.na(vax_date),
     is.na(vax_interval) | vax_interval>=14,
@@ -203,7 +184,7 @@ data_vax_all_clean <-
   ) %>%
   ungroup()
 
-write_rds(data_vax_all_clean, fs::path(output_dir, "data_vax_all_clean.rds"), compress="gz")
+write_rds(data_vax_clean, fs::path(output_dir, "data_vax_clean.rds"), compress="gz")
 
 
 

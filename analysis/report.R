@@ -24,8 +24,8 @@ snapshot_date=as.Date("2023-09-01") # should be the same as the index date used 
 
 # Import processed data ----
 data_fixed <- read_rds(here("output", "process", "data_fixed.rds"))
-data_vax_all <- read_rds(here("output", "process", "data_vax_all.rds"))
-data_vax_all_clean <- read_rds(here("output", "process", "data_vax_all_clean.rds"))
+data_varying <- read_rds(here("output", "process", "data_vax.rds"))
+data_varying_clean <- read_rds(here("output", "process", "data_vax_clean.rds"))
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -36,7 +36,7 @@ data_vax_all_clean <- read_rds(here("output", "process", "data_vax_all_clean.rds
 
 data_vax <-
   left_join(
-    data_vax_all,
+    data_varying,
     data_fixed %>% select(patient_id, sex, death_date),
     by="patient_id"
   ) %>%
@@ -49,7 +49,7 @@ data_vax <-
 
 data_vax_clean <-
   left_join(
-    data_vax_all_clean,
+    data_varying_clean,
     data_fixed %>% select(patient_id, sex, death_date),
     by="patient_id"
   ) %>%
