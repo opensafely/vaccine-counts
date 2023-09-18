@@ -50,7 +50,7 @@ import_extract <- function(custom_file_path, studydef_file_path){
 
     data_extract <- data_custom_dummy
   } else {
-    data_extract <- read_csv(studydef_file_path) %>%
+    data_extract <- read_feather(studydef_file_path) %>%
       #because date types are not returned consistently by cohort extractor
       mutate(across(ends_with("_date"),  as.Date))
   }
@@ -74,7 +74,15 @@ ceiling_any <- function(x, to=1){
 
 
 
-
+vax_product_lookup = c(
+  "pfizer"="COVID-19 mRNA Vaccine Comirnaty 30micrograms/0.3ml dose conc for susp for inj MDV (Pfizer)",
+  "az"="COVID-19 Vaccine Vaxzevria 0.5ml inj multidose vials (AstraZeneca)",
+  "moderna"="COVID-19 mRNA Vaccine Spikevax (nucleoside modified) 0.1mg/0.5mL dose disp for inj MDV (Moderna)",
+  "pfizeromicron"="Comirnaty Original/Omicron BA.1 COVID-19 Vacc md vials",
+  "modernaomicron"="COVID-19 Vac Spikevax (Zero)/(Omicron) inj md vials",
+  "pfizerchildren"="COVID-19 mRNA Vaccine Comirnaty Children 5-11yrs 10mcg/0.2ml dose conc for disp for inj MDV (Pfizer)",
+  "azhalf"="COVID-19 Vac AZD2816 (ChAdOx1 nCOV-19) 3.5x10*9 viral part/0.5ml dose sol for inj MDV (AstraZeneca)"
+)
 
 vax_type_lookup = c(
   "BNT162b2"="pfizer",
@@ -83,7 +91,9 @@ vax_type_lookup = c(
   "BNT162b2/omicron"="pfizeromicron",
   "mRNA-1273/omicron"="modernaomicron",
   "BNT162b2/children"="pfizerchildren",
-  "ChAdOx1/2"="az2",
+  "ChAdOx1/2"="azhalf",
   "Other"="other"
 )
+
+
 
