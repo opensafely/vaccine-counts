@@ -76,13 +76,68 @@ define_vars <- function(data_extracted) {
         ethnicity == "4" ~ "Black",
         ethnicity == "5" ~ "Other",
         ethnicity == "0" ~ "Unknown",
-        TRUE ~ NA_character_ # no missings in real data expected 
+        TRUE ~ NA_character_       ),
+      
+      ethnicity_primary_16 = fct_case_when(
+        ethnicity_primary_16 == "1" ~ "British or Mixed British",
+        ethnicity_primary_16 == "2" ~ "Irish",
+        ethnicity_primary_16 == "3" ~ "Other White",
+        ethnicity_primary_16 == "4" ~ "White + Black Caribbean",
+        ethnicity_primary_16 == "5" ~ "White + Black African",
+        ethnicity_primary_16 == "6" ~ "White + Asian",
+        ethnicity_primary_16 == "7" ~ "Other mixed",
+        ethnicity_primary_16 == "8" ~ "Indian or British Indian",
+        ethnicity_primary_16 == "9" ~ "Pakistani or British Pakistani",
+        ethnicity_primary_16 == "10" ~ "Bangladeshi or British Bangladeshi",
+        ethnicity_primary_16 == "11" ~ "Other Asian",
+        ethnicity_primary_16 == "12" ~ "Caribbean",
+        ethnicity_primary_16 == "13" ~ "African",
+        ethnicity_primary_16 == "14" ~ "Other Black",
+        ethnicity_primary_16 == "15" ~ "Chinese",
+        ethnicity_primary_16 == "16" ~ "Other",
+        ethnicity_primary_16 == "0" ~ "Unknown",
+        TRUE ~ NA_character_ # no missings in real data expected
         # (all mapped into 0) but dummy data will have missings (data is joined
         # and patient ids are not necessarily the same in both cohorts)
       ),
       
+      ethnicity_16 = fct_case_when(
+        ethnicity_16 == "1" ~ "British or Mixed British",
+        ethnicity_16 == "2" ~ "Irish",
+        ethnicity_16 == "3" ~ "Other White",
+        ethnicity_16 == "4" ~ "White + Black Caribbean",
+        ethnicity_16 == "5" ~ "White + Black African",
+        ethnicity_16 == "6" ~ "White + Asian",
+        ethnicity_16 == "7" ~ "Other mixed",
+        ethnicity_16 == "8" ~ "Indian or British Indian",
+        ethnicity_16 == "9" ~ "Pakistani or British Pakistani",
+        ethnicity_16 == "10" ~ "Bangladeshi or British Bangladeshi",
+        ethnicity_16 == "11" ~ "Other Asian",
+        ethnicity_16 == "12" ~ "Caribbean",
+        ethnicity_16 == "13" ~ "African",
+        ethnicity_16 == "14" ~ "Other Black",
+        ethnicity_16 == "15" ~ "Chinese",
+        ethnicity_16 == "16" ~ "Other",
+        ethnicity_16 == "0" ~ "Unknown",
+        TRUE ~ NA_character_ 
+      ),
+      
       imd = fct_case_when(
         imd == "5" ~ "5 (least deprived)",
+        imd == "4" ~ "4",
+        imd == "3" ~ "3",
+        imd == "2" ~ "2",
+        imd == "1" ~ "1 (most deprived)",
+        imd == "0" ~ NA_character_
+      ),
+      
+      imd_decile = fct_case_when(
+        imd == "10" ~ "10 (least deprived)",
+        imd == "9" ~ "9",
+        imd == "8" ~ "8",
+        imd == "7" ~ "7",
+        imd == "6" ~ "6",
+        imd == "5" ~ "5",
         imd == "4" ~ "4",
         imd == "3" ~ "3",
         imd == "2" ~ "2",

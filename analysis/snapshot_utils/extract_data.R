@@ -35,16 +35,21 @@ extract_data <- function(file_name) {
         # demographics
         age = col_integer(),
         agegroup_narrow = col_character(),
+        agegroup_medium = col_character(),
         agegroup_broad = col_character(),
         sex = col_character(),
         ethnicity_primary = col_number(),
         ethnicity_sus = col_number(),
         ethnicity = col_number(),
+        ethnicity_primary_16 = col_number(),
+        ethnicity_sus_16 = col_number(),
+        ethnicity_16 = col_number(),
         bmi_value = col_double(),
         bmi = col_character(),
         smoking_status = col_character(),
         smoking_status_comb = col_character(),
         imd = col_number(),
+        imd_decile = col_number(),
         region = col_character(),
         
         # comorbidities (multilevel)

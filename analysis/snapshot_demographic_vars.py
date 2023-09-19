@@ -1,5 +1,5 @@
 # Adapted from https://github.com/opensafely/covid_mortality_over_time
-# Modifications: addition of ethnicity; removal of msoa, stp, and rurality; modification of age bands
+# Modifications: addition of ethnicity and IMD decile; removal of msoa, stp, and rurality; modification of age bands
 # Define demographic variables
 
 from cohortextractor import (
@@ -49,6 +49,29 @@ demographic_variables = dict(
                     "70-74": 0.1,
                     "75-79": 0.1,
                     "80plus": 0.1,
+                    "missing": 0,
+                }
+            },
+        },
+    ),
+    
+    # Age group in medium bands
+    agegroup_medium=patients.categorised_as(
+        {
+            "18-49": "age >= 18 AND age < 50",
+            "50-64": "age >= 50 AND age < 65",
+            "65-74": "age >= 65 AND age < 75",
+            "75plus": "age >= 75",
+            "missing": "DEFAULT",
+        },
+        return_expectations={
+            "rate": "universal",
+            "category": {
+                "ratios": {
+                    "18-49": 0.3,
+                    "50-64": 0.3,
+                    "65-74": 0.2,
+                    "75plus": 0.2,
                     "missing": 0,
                 }
             },
@@ -138,6 +161,110 @@ demographic_variables = dict(
                                     "3": 0.1,
                                     "4": 0.1,
                                     "5": 0.1
+                                    }
+                                },
+                "rate": "universal",
+            },
+    ),
+    
+    # Ethnicity in 16 categories
+    ethnicity_primary_16=patients.with_these_clinical_events(
+        codelists.ethnicity_codes_16,
+        returning="category",
+        on_or_before="index_date",
+        find_last_match_in_period=True,
+        include_date_of_match=False,
+        return_expectations={
+                                "category": {
+                                    "ratios": {
+                                        "1": 0.0625,
+                                        "2": 0.0625,
+                                        "3": 0.0625,
+                                        "4": 0.0625,
+                                        "5": 0.0625,
+                                        "6": 0.0625,
+                                        "7": 0.0625,
+                                        "8": 0.0625,
+                                        "9": 0.0625,
+                                        "10": 0.0625,
+                                        "11": 0.0625,
+                                        "12": 0.0625,
+                                        "13": 0.0625,
+                                        "14": 0.0625,
+                                        "15": 0.0625,
+                                        "16": 0.0625,
+                                        }
+                                    },
+                                "incidence": 0.75,
+                                },
+    ),
+    ethnicity_sus_16=patients.with_ethnicity_from_sus(
+        returning="group_16",
+        use_most_frequent_code=True,
+        return_expectations={
+            "category": {
+                            "ratios": {
+                                "1": 0.0625,
+                                "2": 0.0625,
+                                "3": 0.0625,
+                                "4": 0.0625,
+                                "5": 0.0625,
+                                "6": 0.0625,
+                                "7": 0.0625,
+                                "8": 0.0625,
+                                "9": 0.0625,
+                                "10": 0.0625,
+                                "11": 0.0625,
+                                "12": 0.0625,
+                                "13": 0.0625,
+                                "14": 0.0625,
+                                "15": 0.0625,
+                                "16": 0.0625,
+                                }
+                            },
+            "incidence": 0.4,
+            },
+    ),
+    ethnicity_16=patients.categorised_as(
+            {
+                "0": "DEFAULT",
+                "1": "ethnicity_primary_16='1' OR (NOT ethnicity_primary_16 AND ethnicity_sus_16='1')",
+                "2": "ethnicity_primary_16='2' OR (NOT ethnicity_primary_16 AND ethnicity_sus_16='2')",
+                "3": "ethnicity_primary_16='3' OR (NOT ethnicity_primary_16 AND ethnicity_sus_16='3')",
+                "4": "ethnicity_primary_16='4' OR (NOT ethnicity_primary_16 AND ethnicity_sus_16='4')",
+                "5": "ethnicity_primary_16='5' OR (NOT ethnicity_primary_16 AND ethnicity_sus_16='5')",
+                "6": "ethnicity_primary_16='6' OR (NOT ethnicity_primary_16 AND ethnicity_sus_16='6')",
+                "7": "ethnicity_primary_16='7' OR (NOT ethnicity_primary_16 AND ethnicity_sus_16='7')",
+                "8": "ethnicity_primary_16='8' OR (NOT ethnicity_primary_16 AND ethnicity_sus_16='8')",
+                "9": "ethnicity_primary_16='9' OR (NOT ethnicity_primary_16 AND ethnicity_sus_16='9')",
+                "10": "ethnicity_primary_16='10' OR (NOT ethnicity_primary_16 AND ethnicity_sus_16='10')",
+                "11": "ethnicity_primary_16='11' OR (NOT ethnicity_primary_16 AND ethnicity_sus_16='11')",
+                "12": "ethnicity_primary_16='12' OR (NOT ethnicity_primary_16 AND ethnicity_sus_16='12')",
+                "13": "ethnicity_primary_16='13' OR (NOT ethnicity_primary_16 AND ethnicity_sus_16='13')",
+                "14": "ethnicity_primary_16='14' OR (NOT ethnicity_primary_16 AND ethnicity_sus_16='14')",
+                "15": "ethnicity_primary_16='15' OR (NOT ethnicity_primary_16 AND ethnicity_sus_16='15')",
+                "16": "ethnicity_primary_16='16' OR (NOT ethnicity_primary_16 AND ethnicity_sus_16='16')",
+            },
+            return_expectations={
+                "category": {
+                                "ratios": {
+                                    "0": 0.5,  # missing in 50%
+                                    "1": 0.03125,
+                                    "2": 0.03125,
+                                    "3": 0.03125,
+                                    "4": 0.03125,
+                                    "5": 0.03125,
+                                    "6": 0.03125,
+                                    "7": 0.03125,
+                                    "8": 0.03125,
+                                    "9": 0.03125,
+                                    "10": 0.03125,
+                                    "11": 0.03125,
+                                    "12": 0.03125,
+                                    "13": 0.03125,
+                                    "14": 0.03125,
+                                    "15": 0.03125,
+                                    "16": 0.03125,
                                     }
                                 },
                 "rate": "universal",
@@ -267,6 +394,40 @@ demographic_variables = dict(
                     "3": 0.2,
                     "4": 0.2,
                     "5": 0.2,
+                }
+            },
+            "incidence": 1.0,
+        },
+    ),
+    imd_decile=patients.categorised_as(
+        {
+            "0": "DEFAULT",
+            "1": "index_of_multiple_deprivation >= 0 AND index_of_multiple_deprivation < 32800*1/10",
+            "2": "index_of_multiple_deprivation >= 32800*1/10 AND index_of_multiple_deprivation < 32800*2/10",
+            "3": "index_of_multiple_deprivation >= 32800*2/10 AND index_of_multiple_deprivation < 32800*3/10",
+            "4": "index_of_multiple_deprivation >= 32800*3/10 AND index_of_multiple_deprivation < 32800*4/10",
+            "5": "index_of_multiple_deprivation >= 32800*4/10 AND index_of_multiple_deprivation < 32800*5/10",
+            "4": "index_of_multiple_deprivation >= 32800*5/10 AND index_of_multiple_deprivation < 32800*6/10",
+            "7": "index_of_multiple_deprivation >= 32800*6/10 AND index_of_multiple_deprivation < 32800*7/10",
+            "8": "index_of_multiple_deprivation >= 32800*7/10 AND index_of_multiple_deprivation < 32800*8/10",
+            "9": "index_of_multiple_deprivation >= 32800*8/10 AND index_of_multiple_deprivation < 32800*9/10",
+            "10": "index_of_multiple_deprivation >= 32800*9/10 AND index_of_multiple_deprivation <= 32800",
+        },
+        return_expectations={
+            "rate": "universal",
+            "category": {
+                "ratios": {
+                    "0": 0,
+                    "1": 0.1,
+                    "2": 0.1,
+                    "3": 0.1,
+                    "4": 0.1,
+                    "5": 0.1,
+                    "6": 0.1,
+                    "7": 0.1,
+                    "8": 0.1,
+                    "9": 0.1,
+                    "10": 0.1,
                 }
             },
             "incidence": 1.0,
