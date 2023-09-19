@@ -34,7 +34,7 @@ actions:
         png: output/report/*.png
 
   # Additional actions for snapshot
-  extract_snaphot:
+  extract_snapshot:
     run: >
       cohortextractor:latest generate_cohort
         --study-definition study_definition_snapshot
@@ -46,7 +46,7 @@ actions:
 
   process_snapshot:
     run: r:latest analysis/snapshot_process.R
-    needs: [extract_snaphot]
+    needs: [extract_snapshot]
     outputs:
       highly_sensitive:
         rds: output/snapshot/processed_snapshot.rds
