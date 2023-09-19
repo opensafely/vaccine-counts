@@ -184,12 +184,9 @@ dummydata_processed <- dummydata %>%
   mutate(across(ends_with("_day"), ~ as.Date(as.character(index_date + .)))) %>%
   rename_with(~str_replace(., "_day", "_date"), ends_with("_day")) %>%
   # convert vaccine product short names to full product names
-  mutate(across(starts_with("covid_vax_type_"), ~fct_recode(., !!!set_names(names(vax_product_lookup), vax_product_lookup))))
-
-
+  #mutate(across(starts_with("covid_vax_type_"), ~fct_recode(., !!!set_names(names(vax_product_lookup), vax_product_lookup))))
+  mutate(across(starts_with("covid_vax_type_"), ~factor(., levels=names(vax_product_lookup), labels=vax_product_lookup)))
 
 
 fs::dir_create(here("lib", "dummydata"))
-write_feather(dummydata_processed, sink = here("lib", "dummydata", "dummyinput_varying.feather"))
-
-
+write_feather(dummydata_processed, sink = here("lib", "dummydata", "dummyinput_varying.arrow"))

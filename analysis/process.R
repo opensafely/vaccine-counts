@@ -30,7 +30,7 @@ fs::dir_create(output_dir)
 
 data_extract_fixed <-
   import_extract(
-    here("lib", "dummydata", "dummyinput_fixed.feather"),
+    here("lib", "dummydata", "dummyinput_fixed.arrow"),
     here("output", "extracts", "extract_fixed.arrow")
   )
 
@@ -38,10 +38,10 @@ data_processed_fixed <- data_extract_fixed %>%
   mutate(
 
     sex = case_when(
-      sex == "F" ~ "Female",
-      sex == "M" ~ "Male",
-      #sex == "I" ~ "Inter-sex",
-      #sex == "U" ~ "Unknown",
+      sex == "female" ~ "Female",
+      sex == "male" ~ "Male",
+      #sex == "intersex" ~ "Inter-sex",
+      #sex == "unknown" ~ "Unknown",
       TRUE ~ NA_character_
     ) %>% factor(),
 
@@ -88,7 +88,7 @@ rm(data_extract_fixed)
 
 data_extract_varying <-
   import_extract(
-    here("lib", "dummydata", "dummyinput_varying.feather"),
+    here("lib", "dummydata", "dummyinput_varying.arrow"),
     here("output", "extracts", "extract_varying.arrow")
   )
 
