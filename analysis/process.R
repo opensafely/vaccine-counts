@@ -14,71 +14,83 @@ library('arrow')
 library('here')
 library('glue')
 
+# Import custom user functions
+source(here("analysis", "utility.R"))
+
+
 start_date=as.Date("2020-06-01")
 end_date=as.Date("2023-12-31")
 
 ## output processed data to rds ----
-fs::dir_create(here("output", "data"))
+output_dir <- here("output", "process")
+fs::dir_create(output_dir)
 
-## Import dataprocess ----
 
-# use externally created dummy data if not running in the server
-# check variables are as they should be
-if(Sys.getenv("OPENSAFELY_BACKEND") %in% c("", "expectations")){
+## Import fixed data ----
 
-  # ideally in future this will check column existence and types from metadata,
-  # rather than from a cohort-extractor-generated dummy data
+data_extract_fixed <-
+  import_extract(
+    here("lib", "dummydata", "dummyinput_fixed.feather"),
+    here("output", "extracts", "extract_fixed.arrow")
+  )
 
-  data_studydef_dummy <- read_feather(here("output", "input.feather")) %>%
-    # because date types are not returned consistently by cohort extractor
-    mutate(across(ends_with("_date"), ~ as.Date(.))) %>%
-    mutate(patient_id = as.integer(patient_id))
+data_processed_fixed <- data_extract_fixed %>%
+  mutate(
 
-  data_custom_dummy <- read_feather(here("lib", "dummydata", "dummyinput.feather"))
+    sex = case_when(
+      sex == "F" ~ "Female",
+      sex == "M" ~ "Male",
+      #sex == "I" ~ "Inter-sex",
+      #sex == "U" ~ "Unknown",
+      TRUE ~ NA_character_
+    ) %>% factor(),
 
-  not_in_studydef <- names(data_custom_dummy)[!( names(data_custom_dummy) %in% names(data_studydef_dummy) )]
-  not_in_custom  <- names(data_studydef_dummy)[!( names(data_studydef_dummy) %in% names(data_custom_dummy) )]
-
-  if(length(not_in_custom)!=0) stop(
-    paste(
-      "These variables are in studydef but not in custom: ",
-      paste(not_in_custom, collapse=", ")
+    ageband = cut(
+      age,
+      breaks=c(-Inf, 18, 40, 55, 65, 75, Inf),
+      labels=c("under 18", "18-39", "40-54", "55-64", "65-74", "75+"),
+      right=FALSE
+    ),
+    region= fct_collapse(
+      region,
+      `East of England` = "East",
+      `London` = "London",
+      `Midlands` = c("West Midlands", "East Midlands"),
+      `North East and Yorkshire` = c("Yorkshire and The Humber", "North East"),
+      `North West` = "North West",
+      `South East` = "South East",
+      `South West` = "South West"
     )
   )
 
-  if(length(not_in_studydef)!=0) stop(
-    paste(
-      "These variables are in custom but not in studydef: ",
-      paste(not_in_studydef, collapse=", ")
-    )
+data_processed_fixed %>%
+  select(
+    patient_id,
+    registered,
+    sex,
+    age,
+    ageband,
+    region,
+    stp,
+    death_date
+  ) %>%
+  write_rds(fs::path(output_dir, "data_fixed.rds"), compress="gz")
+
+
+## delete in-memory objects to save space
+rm(data_processed_fixed)
+rm(data_extract_fixed)
+
+
+
+## Import time-varying data ----
+
+
+data_extract_varying <-
+  import_extract(
+    here("lib", "dummydata", "dummyinput_varying.feather"),
+    here("output", "extracts", "extract_varying.arrow")
   )
-
-  # reorder columns
-  data_studydef_dummy <- data_studydef_dummy[ , names(data_custom_dummy)]
-
-  unmatched_types <- cbind(
-    map_chr(data_studydef_dummy, ~paste(class(.), collapse=", ")),
-    map_chr(data_custom_dummy, ~paste(class(.), collapse=", "))
-  )[ (map_chr(data_studydef_dummy, ~paste(class(.), collapse=", ")) != map_chr(data_custom_dummy, ~paste(class(.), collapse=", ")) ), ] %>%
-    as.data.frame() %>%
-    rownames_to_column()
-
-
-  if(nrow(unmatched_types)>0) stop(
-    #unmatched_types
-    "inconsistent typing in studydef : dummy dataset\n",
-    apply(unmatched_types, 1, function(row) paste(paste(row, collapse=" : "), "\n"))
-  )
-
-  data_extract <- data_custom_dummy
-} else {
-  data_extract <- read_feather(here("output", "input.feather")) %>%
-    #because date types are not returned consistently by cohort extractor
-    mutate(across(ends_with("_date"),  as.Date))
-}
-
-
-
 
 
 standardise_characteristics <- function(i){
@@ -103,16 +115,8 @@ standardise_characteristics <- function(i){
   )
 }
 
-data_processed <- data_extract %>%
+data_processed_varying <- data_extract_varying %>%
   mutate(
-
-    sex = case_when(
-      sex == "F" ~ "Female",
-      sex == "M" ~ "Male",
-      #sex == "I" ~ "Inter-sex",
-      #sex == "U" ~ "Unknown",
-      TRUE ~ NA_character_
-    ) %>% factor(),
 
     !!!standardise_characteristics(1),
     !!!standardise_characteristics(2),
@@ -121,27 +125,22 @@ data_processed <- data_extract %>%
     !!!standardise_characteristics(5),
     !!!standardise_characteristics(6),
     !!!standardise_characteristics(7),
+    !!!standardise_characteristics(8),
+    !!!standardise_characteristics(9),
+    !!!standardise_characteristics(10),
   )
-
-data_processed %>%
-  select(
-    patient_id,
-    sex,
-    death_date
-  ) %>%
-write_rds(here("output", "data", "data_fixed.rds"), compress="gz")
 
 
 # reshape vaccination data ----
 
-data_vax_any <-
-  data_processed %>%
+data_vax <-
+  data_processed_varying %>%
   select(
     patient_id,
-    matches("any_covid_vax\\_\\d+\\_date"),
-    #matches("product_type_\\d+\\"),
+    matches("covid_vax\\_\\d+\\_date"),
+    matches("covid_vax_type_\\d+"),
     matches("registered_\\d+"),
-    matches("dereg_\\d+"),
+    matches("deregistration_\\d+"),
     matches("age_\\d+"),
     matches("ageband_\\d+"),
     matches("region_\\d+"),
@@ -154,44 +153,25 @@ data_vax_any <-
     values_drop_na = TRUE,
     names_transform = list(vax_index = as.integer)
   ) %>%
-  rename(vax_date = any_covid_vax) %>%
-  arrange(patient_id, vax_date)
-
-data_vax_type <-
-  data_processed %>%
-  select(patient_id, matches("^covid\\_\\w+\\_\\d+\\_date")) %>%
-  pivot_longer(
-    cols = -patient_id,
-    names_to = c(NA, "vax_type", "vax_index"),
-    names_pattern = "^(.*)_(\\w+)_(\\d+)_date",
-    values_to = "date",
-    values_drop_na = TRUE,
-  ) %>%
-  rename(vax_date = date) %>%
-  arrange(patient_id, vax_date)
-
-data_vax_all <-
-  left_join(
-    data_vax_any,
-    data_vax_type %>% select(-vax_index),
-    by=c("patient_id", "vax_date")
-  ) %>%
-  mutate(
-    vax_type = replace_na(vax_type, "other"),
+  rename(
+    vax_date = covid_vax,
+    vax_type = covid_vax_type,
   ) %>%
   arrange(patient_id, vax_date) %>%
+  mutate(
+    vax_type = fct_recode(factor(vax_type,vax_product_lookup), !!!vax_product_lookup) %>% fct_explicit_na("other")
+  ) %>%
   group_by(patient_id) %>%
   mutate(
     vax_interval = as.integer(vax_date - lag(vax_date,1))
   ) %>%
   ungroup()
 
+write_rds(data_vax, fs::path(output_dir, "data_vax.rds"), compress="gz")
 
-write_rds(data_vax_all, here("output", "data", "data_vax_all.rds"), compress="gz")
-
-data_vax_all_clean <-
+data_vax_clean <-
   # remove vaccine events occurring within 14 days of a previous vaccine event
-  data_vax_all %>%
+  data_vax %>%
   filter(
     !is.na(vax_date),
     is.na(vax_interval) | vax_interval>=14,
@@ -204,7 +184,7 @@ data_vax_all_clean <-
   ) %>%
   ungroup()
 
-write_rds(data_vax_all_clean, here("output", "data", "data_vax_all_clean.rds"), compress="gz")
+write_rds(data_vax_clean, fs::path(output_dir, "data_vax_clean.rds"), compress="gz")
 
 
 

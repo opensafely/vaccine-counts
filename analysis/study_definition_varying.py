@@ -1,4 +1,8 @@
 
+##########################
+# extract patient information as at each vaccination date
+##########################
+
 from cohortextractor import (
   StudyDefinition,
   patients,
@@ -22,7 +26,7 @@ index_date = "2020-01-01"
 # variable_n_date is the first event date strictly after variable_n-1_date
 
 
-def vaccination_date_X(name, index_date, n, product_name_matches=None):
+def vaccination_date_X(name, on_or_after, n, product_name_matches=None):
   # vaccination date, given product_name
   def var_signature(
     name,
@@ -39,7 +43,7 @@ def vaccination_date_X(name, index_date, n, product_name_matches=None):
       ),
     }
     
-  variables = var_signature(f"{name}_1_date", index_date, product_name_matches)
+  variables = var_signature(f"{name}_1_date", on_or_after, product_name_matches)
   for i in range(2, n+1):
     variables.update(var_signature(
       f"{name}_{i}_date", 
@@ -51,12 +55,12 @@ def vaccination_date_X(name, index_date, n, product_name_matches=None):
 
 
 # get all vaccination dates, and patient characteristics as on those dates
-def vaccination_info(index_date, n):
+def vaccination_info(on_or_after, n):
 
   def variable_signatures(i):
 
     if  (i==1):
-      from_date = index_date
+      from_date = on_or_after
     else:
       from_date = f"any_covid_vax_{i-1}_date + 1 days"
     
@@ -156,27 +160,9 @@ study = StudyDefinition(
   index_date = index_date,
   
   # This line defines the study population
-  population=patients.all(),
+  population=patients.all(), # could change this to `satisfying(any_covid_vax_1_date)` (i.e., at least 1 vaccination) but it would made dummy data a bit harder
   
     
-  ###############################################################################
-  ## non-date-specific info
-  ###############################################################################
-  
-  sex = patients.sex(
-    return_expectations={
-      "rate": "universal",
-      "category": {"ratios": {"M": 0.49, "F": 0.51}},
-      "incidence": 1,
-    }
-  ),
-  # All-cause death
-  death_date=patients.died_from_any_cause(
-    returning="date_of_death",
-    date_format="YYYY-MM-DD",
-  ),
-  
-  
   #################################################################
   ## Covid vaccine dates and info as at vax date
   #################################################################
@@ -185,8 +171,8 @@ study = StudyDefinition(
   **vaccination_info(
     # use 1900 to capture all possible recorded covid vaccinations, including date errors
     # any vaccines occurring before national rollout can be later excluded if necessary
-    index_date = "1900-01-01",
-    n = 7
+    on_or_after = "1900-01-01",
+    n = 10
   ),
   
   ## all other known covid-19 vaccine product names in use
@@ -195,68 +181,58 @@ study = StudyDefinition(
   # pfizer
   **vaccination_date_X(
     name = "covid_vax_pfizer",
-    index_date = "1900-01-01", 
-    n = 7,
+    on_or_after = "1900-01-01", 
+    n = 10,
     product_name_matches="COVID-19 mRNA Vaccine Comirnaty 30micrograms/0.3ml dose conc for susp for inj MDV (Pfizer)"
   ),
   
   # az
   **vaccination_date_X(
     name = "covid_vax_az",
-    index_date = "1900-01-01",
-    n = 7,
+    on_or_after = "1900-01-01",
+    n = 10,
     product_name_matches="COVID-19 Vaccine Vaxzevria 0.5ml inj multidose vials (AstraZeneca)"
   ),
   
   # moderna
   **vaccination_date_X(
     name = "covid_vax_moderna",
-    index_date = "1900-01-01",
-    n = 7,
+    on_or_after = "1900-01-01",
+    n = 10,
     product_name_matches="COVID-19 mRNA Vaccine Spikevax (nucleoside modified) 0.1mg/0.5mL dose disp for inj MDV (Moderna)"
   ),
   
   # pfizer omicron
   **vaccination_date_X(
     name = "covid_vax_pfizeromicron",
-    index_date = "1900-01-01", 
-    n = 7,
+    on_or_after = "1900-01-01", 
+    n = 10,
     product_name_matches="Comirnaty Original/Omicron BA.1 COVID-19 Vacc md vials"
   ),
   
   # moderna omicron
   **vaccination_date_X(
     name = "covid_vax_modernaomicron",
-    index_date = "1900-01-01",
-    n = 7,
+    on_or_after = "1900-01-01",
+    n = 10,
     product_name_matches="COVID-19 Vac Spikevax (Zero)/(Omicron) inj md vials"
   ),
   
   # pfizer children
   **vaccination_date_X(
     name = "covid_vax_pfizerchildren",
-    index_date = "1900-01-01",
-    n = 7,
+    on_or_after = "1900-01-01",
+    n = 10,
     product_name_matches="COVID-19 mRNA Vaccine Comirnaty Children 5-11yrs 10mcg/0.2ml dose conc for disp for inj MDV (Pfizer)"
   ),
   
   #az half dose
   **vaccination_date_X(
     name = "covid_vax_az2",
-    index_date = "1900-01-01",
-    n = 7,
+    on_or_after = "1900-01-01",
+    n = 10,
     product_name_matches="COVID-19 Vac AZD2816 (ChAdOx1 nCOV-19) 3.5x10*9 viral part/0.5ml dose sol for inj MDV (AstraZeneca)"
   ),
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
 
 )
