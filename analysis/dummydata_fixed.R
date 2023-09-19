@@ -27,7 +27,7 @@ index_day <- 0L
 
 known_variables <- c(
   "index_date",
-  "index_day",
+  "index_day"
 )
 
 sim_list = lst(
@@ -37,7 +37,7 @@ sim_list = lst(
   ),
 
   sex = bn_node(
-    ~rfactor(n=..n, levels = c("F", "M"), p = c(0.51, 0.49)),
+    ~rfactor(n=..n, levels = c("female", "male", "intersex", "unknown"), p = c(0.51, 0.49, 0, 0)),
     missing_rate = ~0.001 # this is shorthand for ~(rbernoulli(n=..n, p = 0.2))
   ),
 
@@ -88,6 +88,6 @@ dummydata_processed <- dummydata %>%
 
 
 fs::dir_create(here("lib", "dummydata"))
-write_feather(dummydata_processed, sink = here("lib", "dummydata", "dummyinput_fixed.feather"))
+write_feather(dummydata_processed, sink = here("lib", "dummydata", "dummyinput_fixed.arrow"))
 
 
