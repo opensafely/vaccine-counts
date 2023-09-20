@@ -1,0 +1,344 @@
+---
+title: "OpenSAFELY COVID Vaccine Coverage Snapshot"
+output: html_document
+---
+
+<br>
+
+OpenSAFELY is a secure analytics platform for electronic patient records built on behalf of NHS England to deliver urgent academic and operational research during the pandemic.
+
+This snapshot of vaccine coverage is an extension of our [previous weekly reports](https://reports.opensafely.org/reports/vaccine-coverage-thirdbooster-doses/) on COVID-19 vaccination uptake in England. The snapshot includes data from 40% of general practices that use TPP electronic health record software. The data requires careful interpretation and there are a number of caveats. Please read the full detail about our methods and discussion of our earlier results in our [peer-reviewed publication in the British Journal of General Practice](https://bjgp.org/content/72/714/e51).
+
+The full analytic methods behind the latest results in this report are available [here](https://github.com/opensafely/vaccine-counts).
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+
+# Import libraries
+library('here')
+library('tidyverse')
+library('gt')
+library('gtsummary')
+library('cowplot')
+library('RColorBrewer')
+library('ggridges')
+
+# Function fct_case_when 
+source(here("analysis", "snapshot_utils", "fct_case_when.R"))
+
+# Read in full data for density plots
+d_full <- read_rds(here::here("output", "snapshot", "processed_snapshot.rds")) %>%
+  # Define age_plot for facets
+  mutate(
+    age_plot =  fct_case_when(
+        agegroup_medium=="75+" ~ "75y+",
+        agegroup_medium=="65-74" ~ "65-74y",
+        agegroup_medium=="50-64" ~ "50-64y",
+        agegroup_medium=="18-49" ~ "18-49y",
+        TRUE ~ "0"
+      )
+  )
+
+# Clean time since vaccination variable
+d_full$time_since_last_vax_months[d_full$time_since_last_vax_months>24] = 30
+
+# Read in summary data and define clean variables for tabulations
+d <- read.csv(here::here("output", "snapshot_report", "snapshot_summary.csv"), row.names=1) %>%
+  mutate(Clean_N = formatC(N, big.mark=","),
+         Clean_0 = formatC(Dose_0, big.mark=","),
+         Clean_1 = formatC(Dose_1, big.mark=","),
+         Clean_2 = formatC(Dose_2, big.mark=","),
+         Clean_3 = formatC(Dose_3, big.mark=","),
+         Clean_4 = formatC(Dose_4, big.mark=","),
+         Clean_5plus = formatC(Dose_5plus, big.mark=","),
+         Clean_past_12m = formatC(Vax_past_12m, big.mark=","),
+         Clean_past_24m = formatC(Vax_past_24m, big.mark=","),
+         Perc_0 = round(Dose_0/N*100,1),
+         Perc_1 = round(Dose_1/N*100,1),
+         Perc_2 = round(Dose_2/N*100,1), 
+         Perc_3 = round(Dose_3/N*100,1), 
+         Perc_4 = round(Dose_4/N*100,1), 
+         Perc_5plus = round(Dose_5plus/N*100,1), 
+         Perc_past_12m = round(Vax_past_12m/N*100,1), 
+         Perc_past_24m = round(Vax_past_24m/N*100,1),
+         `0` = paste0(Clean_0," (",Perc_0,"%)"),
+         `1` = paste0(Clean_1," (",Perc_1,"%)"),
+         `2` = paste0(Clean_2," (",Perc_2,"%)"),
+         `3` = paste0(Clean_3," (",Perc_3,"%)"),
+         `4` = paste0(Clean_4," (",Perc_4,"%)"),
+         `5+` = paste0(Clean_5plus," (",Perc_5plus,"%)"),
+         `Dose count, median (IQR)` = paste0(Median_dose_count," (",
+                                             Q1_dose_count,"-",Q3_dose_count,")"),
+         `Vaccinated in past 12 months, n (%)` = paste0(Clean_past_12m," (",Perc_past_12m,"%)"),
+         `Vaccinated in past 24 months, n (%)` = paste0(Clean_past_24m," (",Perc_past_24m,"%)"),
+         `Time in months since last dose, median (IQR)` = paste0(Median_time_since_last_dose," (",
+                                                              Q1_dose_time_since_last_dose,"-", 
+         Q3_dose_time_since_last_dose,")")
+  ) %>%
+  rename(Integer_N = N, N = Clean_N)
+
+## Set factor levels
+d$Covariate = factor(d$Covariate, levels=unique(d$Covariate))
+d$Level = factor(d$Level, levels=unique(d$Level))
+d$Population = factor(d$Population, levels=rev(unique(d$Population)))
+
+# Create data subsets
+d_all <- subset(d, Population=="All")
+d_18to49 <- subset(d, Population=="18-49")
+d_50to64 <- subset(d, Population=="50-64")
+d_65to74 <- subset(d, Population=="65-74")
+d_75plus <- subset(d, Population=="75+")
+
+# Create long-form table
+d_long = rbind(
+  d %>% mutate(Count = "0", Perc = Perc_0),
+  d %>% mutate(Count = "1", Perc = Perc_1),
+  d %>% mutate(Count = "2", Perc = Perc_2),
+  d %>% mutate(Count = "3", Perc = Perc_3),
+  d %>% mutate(Count = "4", Perc = Perc_4),
+  d %>% mutate(Count = "5+", Perc = Perc_5plus)
+)
+
+# Set factor levels for plotting
+d_long$Count = factor(d_long$Count, levels=c("5+", "4", "3", "2", "1", "0"))
+
+# Create colour palette
+pal = brewer.pal(n = 10, name = "RdBu")
+```
+
+<br><br>
+
+#### UK vaccine implementation in adults
+
+An overview of COVID vaccine implementation for UK adults is given below. Additional eligibility criteria can be found in [COVID-19: the green book, chapter 14a](https://www.gov.uk/government/publications/covid-19-the-green-book-chapter-14a).
+
+-   **Primary vaccination (2020-2021):** All adults in the UK were offered a primary 2-dose series, with eligibility starting from December 2020 (over 80s, health and social care workers, and care home residents and staff) and extending to all adults over the early months of 2021.
+
+-   **Extended primary vaccination:** Immunosuppressed individuals were offered a third primary dose from September 2021.
+
+-   **Autumn 2021 booster campaign:** All adults were offered a booster dose, with eligibility starting from September 2021 (over 50s, health and social care workers, and care home residents, among others) and extending to all adults in November 2021.
+
+-   **Spring 2022 booster campaign:** Over 75s, care home residents, and immunosuppressed individuals were offered an additional dose from March 2022.
+
+-   **Autumn 2022 booster campaign:** Over 50s, care home residents and staff, immunosuppressed individuals, people aged 5-49 years in clinical risk groups or in close contact with immunosuppressed individuals, and carers aged 6-49 years were offered an additional dose from September 2022
+
+-   **Spring 2023 booster campaign:** Over 75s, care home residents, and immunosuppressed individuals were offered an additional dose from March 2023.
+
+<br><br>
+
+#### Coverage snapshot - 01 September 2023
+
+This report summarises the vaccination history of adults in England as of 01 September 2023 - immediately prior to the Autumn 2023 COVID vaccine booster campaign. Groups are defined as follows:
+
+-   Age is calculated at 01 September 2023. Age groups (18-49, 50-64, 65-74, and 75+) reflect the eligibility cut-offs used over successive booster campaigns in the UK, as described above.
+
+-   Clinical subgroups are defined using codelists described in our [peer-reviewed publication in the Lancet Public Health](https://www.thelancet.com/journals/lanpub/article/PIIS2468-2667(23)00079-8/fulltext).
+
+-   Index of multiple deprivation is a measure of relative deprivation based on the local area in which a patient lives.
+
+-   We do not distinguish between vaccine products or manufacturers (Oxford/AstraZeneca, Pfizer/BioNTech, or Moderna).
+
+<br><br>
+
+#### Vaccination history by age group {.tabset}
+
+Click on the tabs to display the data as a figure or table. Patient counts are rounded to the nearest 7.
+
+##### Summary figure
+
+```{r, fig.width=12, fig.height=3.5}
+# Function with basic plot parameters for stacked count plot
+g1_extras = function(gg) {
+  gg + 
+    geom_bar(stat="identity", position="stack") +
+    coord_flip() +
+    theme_bw() + 
+    scale_fill_manual(values=pal[c(10,9,8,3,2,1)]) +
+    ggtitle("Dose count") + ylab("%") + xlab("Age (y)") +
+    theme(title = element_text(size = 11),
+          legend.position = "bottom",
+          legend.title = element_blank(),
+          legend.text = element_text(size = 14),
+          strip.background = element_blank(),
+          strip.text = element_blank(),
+          axis.title.y.left = element_text(size=15, margin = margin(t = 0, r = 10, b = 0, l = 0)),
+          panel.spacing = unit(1, "lines"),
+          axis.text = element_text(size = 14),
+          axis.title = element_text(size = 14), 
+          axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0))) +
+    guides(fill = guide_legend(nrow = 1, reverse = TRUE))
+}
+
+# Function with basic plot parameters for prevalence plot
+g2_extras = function(gg) {
+  gg + 
+    geom_bar(stat="identity", position="dodge", fill=pal[10]) +
+    coord_flip() +
+    theme_bw() + 
+    ylim(0,100) +
+    ggtitle("Vaccinated in past 12 months (%)") + ylab("%") + xlab(" ") +
+    theme(title = element_text(size = 11),
+          strip.background = element_blank(),
+          strip.text = element_blank(),
+          panel.spacing = unit(1, "lines"),
+          axis.text.x = element_text(size = 14),
+          axis.text.y = element_blank(),
+          axis.title = element_text(size = 14))
+}
+
+# Function with basic plot parameters for ridge plot
+g3_extras = function(gg) {
+  gg + 
+    #geom_violin(fill=pal[10], alpha=0.2) +  
+    geom_density_ridges(fill=pal[10], alpha=0.2, scale=0.5, bandwidth=1) +
+    theme_bw() +
+    #scale_x_reverse(limits=c(30,0), breaks=c(30,24,18,12,6,0), labels=c("Unvax/\n>24","24","18","12","6","0")) +
+    scale_x_continuous(limits=c(0,30), breaks=c(0,6,12,18,24,30), labels=c("0","6","12","18","24","Unvax/\n>24")) +
+    ggtitle("Time since last dose") + ylab(" ") + xlab("Months") +
+    theme(title = element_text(size = 11),
+          strip.background = element_blank(),
+          strip.text = element_text(size = 14),
+          strip.text.y = element_text(angle = 0),
+          panel.spacing = unit(1, "lines"),
+          axis.text.x = element_text(size = 14),
+          axis.text.y = element_blank(),
+          axis.title = element_text(size = 14),
+          plot.margin = margin(r = 10))
+}
+
+# Create plots for vaccination history by age group
+g1 = ggplot(subset(d_long, Population=="All"), aes(x=Level, y=Perc, fill = Count)) %>% 
+  g1_extras()
+g2 = ggplot(d_all, aes(x=Level, y=as.numeric(Perc_past_12m))) %>% 
+  g2_extras()
+g3 = ggplot(d_full, aes(y=age_plot, x=as.numeric(time_since_last_vax_months))) %>% 
+  g3_extras()
+plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
+```
+
+<br><br>
+
+##### Summary table
+
+```{r}
+d_all %>% 
+  rename(`Age group` = Level) %>%
+  arrange(rev(`Age group`)) %>%
+  select(`Age group`, N, `0`, `1`, `2`, `3`, `4`, `5+`, `Dose count, median (IQR)`, 
+         `Vaccinated in past 12 months, n (%)`, `Vaccinated in past 24 months, n (%)`, `Time in months since last dose, median (IQR)`) %>%
+  gt() %>%
+  tab_spanner(
+    label = "Dose count",
+    columns = c("0", "1", "2", "3", "4", "5+")
+  ) %>%
+   tab_options(row_group.font.weight="bold", column_labels.font.weigh="bold") %>%
+   tab_options(table.font.size = pct(95)) %>%
+   tab_footnote(
+    footnote = "Unvaccinated individuals were assigned a value of 36 months for these calculations (exceeding the maximum observation among vaccinated individuals).",
+    locations = cells_column_labels(columns = `Time in months since last dose, median (IQR)`)
+  )
+```
+
+<br><br>
+
+#### Vaccination history by age group, ethnicity, and deprivation {.tabset}
+
+Click on the tabs to display summary figures and tables. The two figures provide a summary of data broken down by ethnicity and deprivation index. The tables include a more detailed breakdown of vaccination history according to demographic and clinical subgroups (including a more narrow definition of ethnicity). Patient counts are rounded to the nearest 7. Abbreviations: CKD, chronic kidney disease; IMD, index of multiple deprivation; RRT, renal replacement therapy.
+
+##### Figure (ethnicity)
+
+*See tables for vaccination history according to narrow definition of ethnicity.*
+
+```{r, fig.width=12, fig.height=10}
+g1 = ggplot(subset(d_long, Covariate=="Ethnicity (broad categories)"), 
+            aes(x=Level, y=Perc, fill = Count)) %>%
+  g1_extras() +
+  scale_x_discrete(limits=rev) + xlab("Ethnicity") +
+  facet_grid(Population~.,scales = "free_y", space = "free_y") 
+
+g2 = ggplot(subset(d, Covariate=="Ethnicity (broad categories)"), 
+                   aes(x=Level, y=as.numeric(Perc_past_12m))) %>%
+  g2_extras() +
+  scale_x_discrete(limits=rev) + 
+  facet_grid(Population~.,scales = "free_y", space = "free_y") 
+
+g3 = ggplot(d_full, aes(y=ethnicity, x=as.numeric(time_since_last_vax_months)))  %>%
+  g3_extras() +
+  scale_y_discrete(limits=rev) +
+  facet_grid(age_plot~.,scales = "free_y", space = "free_y")
+
+plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
+```
+
+<br><br>
+
+##### Figure (deprivation)
+
+```{r, fig.width=12, fig.height=10}
+g1 = ggplot(subset(d_long, Covariate=="IMD quintile"), 
+            aes(x=Level, y=Perc, fill = Count)) %>%
+  g1_extras() +
+  scale_x_discrete(limits=rev) + xlab("Index of multiple deprivation quintile") +
+  facet_grid(Population~.,scales = "free_y", space = "free_y") 
+
+g2 = ggplot(subset(d, Covariate=="IMD quintile"), 
+                   aes(x=Level, y=as.numeric(Perc_past_12m))) %>%
+  g2_extras() +
+  scale_x_discrete(limits=rev) + 
+  facet_grid(Population~.,scales = "free_y", space = "free_y") 
+
+g3 = ggplot(d_full, aes(y=imd, x=as.numeric(time_since_last_vax_months)))  %>%
+  g3_extras() +
+  scale_y_discrete(limits=rev) +
+  facet_grid(age_plot~.,scales = "free_y", space = "free_y")
+  
+plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
+```
+
+<br><br>
+
+##### Table (75y+)
+
+```{r}
+# Function to summarise vaccination history for age subgroup
+subgroup_gt = function(d_subgroup) {
+  d_subgroup %>% 
+    select(Covariate, Level, N, `0`, `1`, `2`, `3`, `4`, `5+`, `Dose count, median (IQR)`, 
+           `Vaccinated in past 12 months, n (%)`, `Vaccinated in past 24 months, n (%)`,
+           `Time in months since last dose, median (IQR)`) %>%
+    gt(groupname_col = "Covariate") %>%
+    tab_spanner(
+      label = "Dose count",
+      columns = c("0", "1", "2", "3", "4", "5+")
+    ) %>%
+    tab_options(row_group.font.weight="bold", column_labels.font.weigh="bold") %>%
+    tab_options(table.font.size = pct(90)) %>%
+    tab_footnote(
+      footnote = "Unvaccinated individuals were assigned a value of 36 months for these calculations (exceeding the maximum observation among vaccinated individuals).",
+      locations = cells_column_labels(columns = `Time in months since last dose, median (IQR)`)
+    )
+}
+
+# Generate table
+subgroup_gt(d_75plus)
+```
+
+##### Table (65-74y)
+
+```{r}
+subgroup_gt(d_65to74)
+```
+
+##### Table (50-64y)
+
+```{r}
+subgroup_gt(d_50to64)
+```
+
+##### Table (18-49y)
+
+```{r}
+subgroup_gt(d_18to49)
+```
+
+<br><br>

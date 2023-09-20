@@ -6,7 +6,7 @@
 
 ######################################
 
-## Import libraries
+# Import libraries
 library(tidyverse)
 library(here)
 library(glue)
@@ -18,12 +18,14 @@ library(reshape2)
 # Import filtered data
 data <- read_rds(here::here("output", "snapshot", paste0("processed_snapshot.rds")))
 
-# Recode n_vax
+# Recode n_vax as numeric
 data$n_vax = as.numeric(as.character(data$n_vax))
 
-# Define broad age subsets for stratified analysis
-data_50to64 <- subset(data, agegroup_broad=="50-64")
-data_65plus <- subset(data, agegroup_broad=="65plus")
+# Define age subsets for stratified analysis
+data_18to49 <- subset(data, agegroup_medium=="18-49")
+data_50to64 <- subset(data, agegroup_medium=="50-64")
+data_65to74 <- subset(data, agegroup_medium=="65-74")
+data_75plus <- subset(data, agegroup_medium=="75+")
 
 ## Set rounding and redaction thresholds
 rounding_threshold = 7
@@ -44,114 +46,70 @@ summarise_vax_history = function(data) {
       Q3_dose_count = quantile(n_vax, probs = 0.75),
       Vax_past_12m = plyr::round_any(sum(vax_past_12m==1, na.rm=TRUE), rounding_threshold),
       Vax_past_24m = plyr::round_any(sum(vax_past_24m==1, na.rm=TRUE), rounding_threshold),
-      Median_time_since_last_dose = round(median(time_since_last_vax_months, na.rm=TRUE),0),
-      Q1_dose_time_since_last_dose = round(quantile(time_since_last_vax_months, probs = 0.25, na.rm=TRUE),0),
-      Q3_dose_time_since_last_dose = round(quantile(time_since_last_vax_months, probs = 0.75, na.rm=TRUE),0),
+      Median_time_since_last_dose = round(median(time_since_last_vax_months, na.rm=TRUE),1),
+      Q1_dose_time_since_last_dose = round(quantile(time_since_last_vax_months, probs = 0.25, na.rm=TRUE),1),
+      Q3_dose_time_since_last_dose = round(quantile(time_since_last_vax_months, probs = 0.75, na.rm=TRUE),1),
     )
 }
 
-# Function to summarise vaccination history by subgroup and clean names
-summarise_by_subgroup = function(data, subgroup, clean_name) {
+# Function to summarise vaccination history by covariate and add clean names
+summarise_by_covariate = function(data, covariate, clean_name) {
   data %>% 
-    group_by(get(subgroup)) %>% 
+    group_by(get(covariate)) %>% 
     summarise_vax_history() %>%
-    mutate(Subgroup = clean_name, Level = `get(subgroup)`) %>% 
-    select(-`get(subgroup)`)
+    mutate(Covariate = clean_name, Level = `get(covariate)`) %>% 
+    select(-`get(covariate)`)
+}
+
+# Function to collate demographic and clinical data for input population
+summarise_covariates = function(data, population_label) {
+  rbind(
+    summarise_by_covariate(data, "sex", "Sex"),
+    summarise_by_covariate(data, "ethnicity", "Ethnicity (broad categories)"),
+    summarise_by_covariate(data, "ethnicity_16", "Ethnicity (narrow categories)"),
+    summarise_by_covariate(data, "imd", "IMD quintile"),
+    summarise_by_covariate(data, "bmi", "Body Mass Index"),
+    summarise_by_covariate(data, "smoking_status_comb", "Smoking status"),
+    summarise_by_covariate(data, "asthma", "Asthma"),
+    summarise_by_covariate(data, "diabetes_controlled", "Diabetes"),
+    summarise_by_covariate(data, "ckd_rrt", "CKD or RRT"),
+    summarise_by_covariate(data, "organ_kidney_transplant", "Organ transplant"),
+    summarise_by_covariate(data, "bp_ht", "Hypertension"),
+    summarise_by_covariate(data, "chronic_respiratory_disease", "Chronic respiratory disease"),
+    summarise_by_covariate(data, "chronic_cardiac_disease", "Chronic cardiac disease"),
+    summarise_by_covariate(data, "cancer", "Cancer (non-haematological)"),
+    summarise_by_covariate(data, "haem_cancer", "Haematological malignancy"),
+    summarise_by_covariate(data, "chronic_liver_disease", "Chronic liver disease"),
+    summarise_by_covariate(data, "stroke", "Stroke"),
+    summarise_by_covariate(data, "dementia", "Dementia"),
+    summarise_by_covariate(data, "other_neuro", "Neurological disease"),
+    summarise_by_covariate(data, "asplenia", "Asplenia"),
+    summarise_by_covariate(data, "ra_sle_psoriasis", "Rheumatoid arthritis, lupus, or psoriasis"),
+    summarise_by_covariate(data, "immunosuppression", "Immunodeficiency"),
+    summarise_by_covariate(data, "learning_disability", "Learning disability"),
+    summarise_by_covariate(data, "sev_mental_ill", "Severe mental illness")
+) %>%
+  mutate(Population = population_label)
 }
 
 # Table for whole population
 tab_whole_pop <- data %>%
-  group_by(agegroup_narrow) %>%
+  group_by(agegroup_medium) %>%
   summarise_vax_history() %>%
-  mutate(Population = "All", Subgroup = "All", Level = agegroup_narrow) %>%
-  select(-agegroup_narrow)
+  mutate(Population = "All", Covariate = "All", Level = agegroup_medium) %>%
+  select(-agegroup_medium)
 
-# Table for 50 to 64
-tab_50to64 <- rbind(
-  summarise_by_subgroup(data_50to64, "sex", "Sex"),
-  summarise_by_subgroup(data_50to64, "ethnicity", "Ethnicity"),
-  summarise_by_subgroup(data_50to64, "imd", "IMD quintile"),
-  summarise_by_subgroup(data_50to64, "bmi", "Body Mass Index"),
-  summarise_by_subgroup(data_50to64, "smoking_status_comb", "Smoking status"),
-  summarise_by_subgroup(data_50to64, "asthma", "Asthma"),
-  summarise_by_subgroup(data_50to64, "diabetes_controlled", "Diabetes"),
-  summarise_by_subgroup(data_50to64, "ckd_rrt", "CKD or RRT"),
-  summarise_by_subgroup(data_50to64, "organ_kidney_transplant", "Organ transplant"),
-  summarise_by_subgroup(data_50to64, "bp_ht", "Hypertension"),
-  summarise_by_subgroup(data_50to64, "chronic_respiratory_disease", "Chronic respiratory disease"),
-  summarise_by_subgroup(data_50to64, "chronic_cardiac_disease", "Chronic cardiac disease"),
-  summarise_by_subgroup(data_50to64, "cancer", "Cancer (non-haematological)"),
-  summarise_by_subgroup(data_50to64, "haem_cancer", "Haematological malignancy"),
-  summarise_by_subgroup(data_50to64, "chronic_liver_disease", "Chronic liver disease"),
-  summarise_by_subgroup(data_50to64, "stroke", "Stroke"),
-  summarise_by_subgroup(data_50to64, "dementia", "Dementia"),
-  summarise_by_subgroup(data_50to64, "other_neuro", "Neurological disease"),
-  summarise_by_subgroup(data_50to64, "asplenia", "Asplenia"),
-  summarise_by_subgroup(data_50to64, "ra_sle_psoriasis", "Rheumatoid arthritis, lupus, or psoriasis"),
-  summarise_by_subgroup(data_50to64, "immunosuppression", "Immunodeficiency"),
-  summarise_by_subgroup(data_50to64, "learning_disability", "Learning disability"),
-  summarise_by_subgroup(data_50to64, "sev_mental_ill", "Severe mental illness")
-) %>%
-  mutate(Population = "50-64")
-
-
-# Table for 65+
-tab_65plus <- rbind(
-  summarise_by_subgroup(data_65plus, "sex", "Sex"),
-  summarise_by_subgroup(data_65plus, "ethnicity", "Ethnicity"),
-  summarise_by_subgroup(data_65plus, "imd", "IMD quintile"),
-  summarise_by_subgroup(data_65plus, "bmi", "Body Mass Index"),
-  summarise_by_subgroup(data_65plus, "smoking_status_comb", "Smoking status"),
-  summarise_by_subgroup(data_65plus, "asthma", "Asthma"),
-  summarise_by_subgroup(data_65plus, "diabetes_controlled", "Diabetes"),
-  summarise_by_subgroup(data_65plus, "ckd_rrt", "CKD or RRT"),
-  summarise_by_subgroup(data_65plus, "organ_kidney_transplant", "Organ transplant"),
-  summarise_by_subgroup(data_65plus, "bp_ht", "Hypertension"),
-  summarise_by_subgroup(data_65plus, "chronic_respiratory_disease", "Chronic respiratory disease"),
-  summarise_by_subgroup(data_65plus, "chronic_cardiac_disease", "Chronic cardiac disease"),
-  summarise_by_subgroup(data_65plus, "cancer", "Cancer (non-haematological)"),
-  summarise_by_subgroup(data_65plus, "haem_cancer", "Haematological malignancy"),
-  summarise_by_subgroup(data_65plus, "chronic_liver_disease", "Chronic liver disease"),
-  summarise_by_subgroup(data_65plus, "stroke", "Stroke"),
-  summarise_by_subgroup(data_65plus, "dementia", "Dementia"),
-  summarise_by_subgroup(data_65plus, "other_neuro", "Neurological disease"),
-  summarise_by_subgroup(data_65plus, "asplenia", "Asplenia"),
-  summarise_by_subgroup(data_65plus, "ra_sle_psoriasis", "Rheumatoid arthritis, lupus, or psoriasis"),
-  summarise_by_subgroup(data_65plus, "immunosuppression", "Immunodeficiency"),
-  summarise_by_subgroup(data_65plus, "learning_disability", "Learning disability"),
-  summarise_by_subgroup(data_65plus, "sev_mental_ill", "Severe mental illness")
-) %>% 
-  mutate(Population = "65+")
+# Tabulate for population covariates
+tab_18to49 <- summarise_covariates(data_18to49, "18-49")
+tab_50to64 <- summarise_covariates(data_50to64, "50-64")
+tab_65to74 <- summarise_covariates(data_65to74, "65-74")
+tab_75plus <- summarise_covariates(data_75plus, "75+")
 
 ## Combine outputs
-tab_combined <- rbind(tab_whole_pop, tab_50to64, tab_65plus) %>%
-  relocate(Population, Subgroup, Level)
-
-## Clean output
-tab_combined_clean <- tab_combined %>%
-  mutate(
-    `0 dose` = paste0(Dose_0," (",round(Dose_0/N*100,1),"%)"),
-    `1 dose` = paste0(Dose_1," (",round(Dose_1/N*100,1),"%)"),
-    `2 dose` = paste0(Dose_2," (",round(Dose_2/N*100,1),"%)"),
-    `3 dose` = paste0(Dose_3," (",round(Dose_3/N*100,1),"%)"),
-    `4 dose` = paste0(Dose_4," (",round(Dose_4/N*100,1),"%)"),
-    `5+ dose` = paste0(Dose_5plus," (",round(Dose_5plus/N*100,1),"%)"),
-    `Median (IQR) dose count` = paste0(Median_dose_count," (",Q1_dose_count,"-",Q3_dose_count,")"),
-    `Vaccinated in past 12 months, n (%)` = paste0(Vax_past_12m," (",round(Vax_past_12m/N*100,1),"%)"),
-    `Vaccinated in past 24 months, n (%)` = paste0(Vax_past_24m," (",round(Vax_past_24m/N*100,1),"%)"),
-    `Median (IQR) time in months to last dose` = paste0(Median_time_since_last_dose," (",Q1_dose_time_since_last_dose,"-",Q3_dose_time_since_last_dose,")")
-  ) %>%
-  select(Population, Subgroup, Level, N, 
-         `0 dose`, `1 dose`, `2 dose`, `3 dose`, `4 dose`, `5+ dose`,
-         `Median (IQR) dose count`, 
-         `Vaccinated in past 12 months, n (%)`,
-         `Vaccinated in past 24 months, n (%)`,
-         `Median (IQR) time in months to last dose`
-  )
-
+tab_combined <- rbind(tab_whole_pop, tab_18to49, tab_50to64, tab_65to74, tab_75plus) %>%
+  relocate(Population, Covariate, Level)
 
 ## Save outputs
 output_dir <- here("output", "snapshot_report")
 fs::dir_create(output_dir)
 write.csv(tab_combined, file = paste0(output_dir, "/snapshot_summary.csv"))
-write.csv(tab_combined_clean, file = paste0(output_dir, "/snapshot_summary_clean.csv"))

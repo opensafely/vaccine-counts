@@ -27,7 +27,6 @@ sessionInfo()
 # Set snapshot index date
 index_date = "2023-09-01"
 
-# Load data ---
 # Find input file names by globbing
 input_file <- Sys.glob(here("output", "input_snapshot.csv.gz"))
 
@@ -41,18 +40,16 @@ data_extracted <- extract_data(file_name = input_file) %>%
                   as.Date(.x, format="%Y-%m-%d"),
                   unit = "days")))
 
-## Add kidney columns to data (egfr and ckd_rrt)
+# Add kidney columns to data (egfr and ckd_rrt)
 data_extracted_with_kidney_vars <- add_kidney_vars_to_data(data_extracted = data_extracted)
 
-## Process data to use correct factor levels and create prior infection variables
+# Process data to use correct factor levels and create prior infection variables
 data_processed <- define_vars(data_extracted_with_kidney_vars)
 
-# Save output ---
+# Save output
 output_dir <- here("output", "snapshot")
 fs::dir_create(output_dir)
-
-## Save compressed RDS
 saveRDS(object = data_processed, file = paste0(output_dir, "/processed_snapshot.rds"), compress = TRUE)
 
-## Save csv for local visualisation
+# Save csv for local visualisation
 #write_csv(data_processed, file = paste0(output_dir, "/processed_snapshot.csv"))

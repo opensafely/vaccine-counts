@@ -38,16 +38,24 @@ define_vars <- function(data_extracted) {
         agegroup_narrow == "65-69" ~ "65-69",
         agegroup_narrow == "70-74" ~ "70-74",
         agegroup_narrow == "75-79" ~ "75-79",
-        agegroup_narrow == "80plus" ~ "80plus",
+        agegroup_narrow == "80plus" ~ "80+",
         TRUE ~ NA_character_
       ),
       # no missings should occur as individuals with
       # missing age are not included in the study
       
+      agegroup_medium = fct_case_when(
+        agegroup_medium == "18-49" ~ "18-49", # = reference
+        agegroup_medium == "50-64" ~ "50-64",
+        agegroup_medium == "65-74" ~ "65-74",
+        agegroup_medium == "75plus" ~ "75+",
+        TRUE ~ NA_character_
+      ),
+      
       agegroup_broad = fct_case_when(
         agegroup_broad == "18-49" ~ "18-49", # = reference
         agegroup_broad == "50-64" ~ "50-64",
-        agegroup_broad == "65plus" ~ "65plus",
+        agegroup_broad == "65plus" ~ "65+",
         TRUE ~ NA_character_
       ),
       
@@ -132,17 +140,17 @@ define_vars <- function(data_extracted) {
       ),
       
       imd_decile = fct_case_when(
-        imd == "10" ~ "10 (least deprived)",
-        imd == "9" ~ "9",
-        imd == "8" ~ "8",
-        imd == "7" ~ "7",
-        imd == "6" ~ "6",
-        imd == "5" ~ "5",
-        imd == "4" ~ "4",
-        imd == "3" ~ "3",
-        imd == "2" ~ "2",
-        imd == "1" ~ "1 (most deprived)",
-        imd == "0" ~ NA_character_
+        imd_decile == "10" ~ "10 (least deprived)",
+        imd_decile == "9" ~ "9",
+        imd_decile == "8" ~ "8",
+        imd_decile == "7" ~ "7",
+        imd_decile == "6" ~ "6",
+        imd_decile == "5" ~ "5",
+        imd_decile == "4" ~ "4",
+        imd_decile == "3" ~ "3",
+        imd_decile == "2" ~ "2",
+        imd_decile == "1" ~ "1 (most deprived)",
+        imd_decile == "0" ~ NA_character_
       ),
       
       region = fct_case_when(
@@ -293,11 +301,16 @@ define_vars <- function(data_extracted) {
       ),
       
       # Define time since last vaccination
-      time_since_last_vax_days = as.numeric(index_date - covid_vax_date_most_recent),
+      time_since_last_vax_days = plyr::round_any(as.numeric(index_date - covid_vax_date_most_recent),7), # rounded to nearest week
       time_since_last_vax_months = time_since_last_vax_days/(365/12),
       vax_past_12m = as.numeric(time_since_last_vax_days<=365),
       vax_past_24m = as.numeric(time_since_last_vax_days<=(365*2)),
     )
+  
+  # Set upper limits for time since vaccination to 3 years (equivalent to 01 Sep 2020, which precedes vaccine roll-out)
+  data_processed$time_since_last_vax_days[is.na(data_processed$time_since_last_vax_days)] = 365*3
+  data_processed$time_since_last_vax_months[is.na(data_processed$time_since_last_vax_months)] = 36
+  
   data_processed
 }
 
