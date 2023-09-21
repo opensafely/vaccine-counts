@@ -29,10 +29,13 @@ data_varying_clean <- read_rds(here("output", "process", "data_vax_clean.rds"))
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# some more processing ----
+# processing ----
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 ## add time-invariant info to vaccine data and format variables for printing / plots ----
+
+# only use first 6 vaccines in look up list, and set the rest to "unknown"
+vax_type_lookup_6 <- vax_type_lookup[c(1:6, length(vax_type_lookup))]
 
 data_vax <-
   left_join(
@@ -43,7 +46,7 @@ data_vax <-
   mutate(
     vax_dosenumber = factor(vax_index, levels = sort(unique(vax_index)), labels = paste("Dose", sort(unique(vax_index)))),
     vax_week = floor_date(vax_date, unit =  "week", week_start = 1),
-    vax_type = fct_recode(factor(vax_type, levels=vax_type_lookup), !!!vax_type_lookup),
+    vax_type = fct_recode(factor(vax_type, levels=vax_type_lookup_6), !!!vax_type_lookup_6),
     all=""
   )
 
@@ -56,7 +59,7 @@ data_vax_clean <-
   mutate(
     vax_dosenumber = factor(vax_index, levels = sort(unique(vax_index)), labels = paste("Dose", sort(unique(vax_index)))),
     vax_week = floor_date(vax_date, unit =  "week", week_start = 1),
-    vax_type = fct_recode(factor(vax_type, levels=vax_type_lookup), !!!vax_type_lookup),
+    vax_type = fct_recode(factor(vax_type, levels=vax_type_lookup_6), !!!vax_type_lookup_6),
     all=""
   )
 
@@ -294,7 +297,7 @@ check_1rpp <-
   data_last_vax_date_clean %>%
   group_by(patient_id) %>%
   filter(row_number()!=1)
-stopifnot("data_last_vax_date_clean should not have mnultiple rows per patient" = nrow(check_1rpp)==0)
+stopifnot("data_last_vax_date_clean should not have multiple rows per patient" = nrow(check_1rpp)==0)
 
 data_snapshot <-
   left_join(
