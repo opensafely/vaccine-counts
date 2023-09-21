@@ -44,15 +44,15 @@ d_full$time_since_last_vax_months[d_full$time_since_last_vax_months>24] = 30
 
 # Read in summary data and define clean variables for tabulations
 d <- read_rds(here::here("output", "snapshot_report", "snapshot_summary.rds")) %>%
-  mutate(Clean_N = formatC(N, big.mark=","),
-         Clean_0 = formatC(Dose_0, big.mark=","),
-         Clean_1 = formatC(Dose_1, big.mark=","),
-         Clean_2 = formatC(Dose_2, big.mark=","),
-         Clean_3 = formatC(Dose_3, big.mark=","),
-         Clean_4 = formatC(Dose_4, big.mark=","),
-         Clean_5plus = formatC(Dose_5plus, big.mark=","),
-         Clean_past_12m = formatC(Vax_past_12m, big.mark=","),
-         Clean_past_24m = formatC(Vax_past_24m, big.mark=","),
+  mutate(Clean_N = formatC(N, big.mark=",", format="f"),
+         Clean_0 = formatC(Dose_0, big.mark=",", format="f"),
+         Clean_1 = formatC(Dose_1, big.mark=",", format="f"),
+         Clean_2 = formatC(Dose_2, big.mark=",", format="f"),
+         Clean_3 = formatC(Dose_3, big.mark=",", format="f"),
+         Clean_4 = formatC(Dose_4, big.mark=",", format="f"),
+         Clean_5plus = formatC(Dose_5plus, big.mark=",", format="f"),
+         Clean_past_12m = formatC(Vax_past_12m, big.mark=",", format="f"),
+         Clean_past_24m = formatC(Vax_past_24m, big.mark=",", format="f"),
          Perc_0 = round(Dose_0/N*100,1),
          Perc_1 = round(Dose_1/N*100,1),
          Perc_2 = round(Dose_2/N*100,1), 
@@ -169,11 +169,10 @@ g1_extras = function(gg) {
           legend.text = element_text(size = 14),
           strip.background = element_blank(),
           strip.text = element_blank(),
-          axis.title.y.left = element_text(size=15, margin = margin(t = 0, r = 10, b = 0, l = 0)),
           panel.spacing = unit(1, "lines"),
           axis.text = element_text(size = 14),
           axis.title = element_text(size = 14), 
-          axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0))) +
+          axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0))) +
     guides(fill = guide_legend(nrow = 1, reverse = TRUE))
 }
 
@@ -221,7 +220,7 @@ g2 = ggplot(d_all, aes(x=Level, y=as.numeric(Perc_past_12m))) %>%
   g2_extras()
 g3 = ggplot(d_full, aes(y=age_plot, x=as.numeric(time_since_last_vax_months))) %>% 
   g3_extras()
-plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
+plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1.1,1.2))
 ```
 
 <br><br>
@@ -271,7 +270,7 @@ g3 = ggplot(d_full, aes(y=ethnicity, x=as.numeric(time_since_last_vax_months))) 
   scale_y_discrete(limits=rev) +
   facet_grid(age_plot~.,scales = "free_y", space = "free_y")
 
-plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
+plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1.1,1.2))
 ```
 
 <br><br>
@@ -296,7 +295,7 @@ g3 = ggplot(d_full, aes(y=imd, x=as.numeric(time_since_last_vax_months)))  %>%
   scale_y_discrete(limits=rev) +
   facet_grid(age_plot~.,scales = "free_y", space = "free_y")
   
-plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
+plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1.1,1.2))
 ```
 
 <br><br>
