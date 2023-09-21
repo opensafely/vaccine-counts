@@ -7,7 +7,7 @@ output: html_document
 
 OpenSAFELY is a secure analytics platform for electronic patient records built on behalf of NHS England to deliver urgent academic and operational research during the pandemic.
 
-This snapshot of vaccine coverage is an extension of our [previous weekly reports](https://reports.opensafely.org/reports/vaccine-coverage-thirdbooster-doses/) on COVID-19 vaccination uptake in England. The snapshot includes data from 40% of general practices that use TPP electronic health record software. The data requires careful interpretation and there are a number of caveats. Please read the full detail about our methods and discussion of our earlier results in our [peer-reviewed publication in the British Journal of General Practice](https://bjgp.org/content/72/714/e51).
+This snapshot of vaccine coverage is an extension of our [previous weekly reports](https://reports.opensafely.org/reports/vaccine-coverage-thirdbooster-doses/) on COVID-19 vaccination uptake in England. The snapshot includes data from the 40% of general practices that use TPP electronic health record software. The data requires careful interpretation and there are a number of caveats. Please read the full detail about our methods and discussion of our earlier results in our [peer-reviewed publication in the British Journal of General Practice](https://bjgp.org/content/72/714/e51).
 
 The full analytic methods behind the latest results in this report are available [here](https://github.com/opensafely/vaccine-counts).
 
@@ -112,7 +112,7 @@ pal = brewer.pal(n = 10, name = "RdBu")
 
 <br><br>
 
-### UK vaccine implementation in adults
+#### UK vaccine implementation in adults
 
 An overview of COVID-19 vaccine implementation for UK adults is given below. Additional eligibility criteria can be found in [COVID-19: the green book, chapter 14a](https://www.gov.uk/government/publications/covid-19-the-green-book-chapter-14a).
 
@@ -124,13 +124,16 @@ An overview of COVID-19 vaccine implementation for UK adults is given below. Add
 
 -   **Spring 2022 booster campaign:** Over 75s, care home residents, and immunosuppressed individuals were offered an additional dose from March 2022.
 
--   **Autumn 2022 booster campaign:** Over 50s, care home residents and staff, immunosuppressed individuals, people aged 5-49 years in clinical risk groups or in close contact with immunosuppressed individuals, and carers aged 6-49 years were offered an additional dose from September 2022
+-   **Autumn 2022 booster campaign:** Over 50s, care home residents and staff, immunosuppressed individuals, people aged 5-49 years in clinical risk groups or in close contact with immunosuppressed individuals, and carers aged 16-49 years were offered an additional dose from September 2022
 
 -   **Spring 2023 booster campaign:** Over 75s, care home residents, and immunosuppressed individuals were offered an additional dose from March 2023.
 
+-   **Autumn 2023 booster campaign:** Over 65s, care home residents, people aged 6 months to 64 years in clinical risk groups, health and social care workers, people aged 12-64 years who are in close contact with immunosuppressed individuals, and carers aged 16-64 years are being offered an additional dose from September 2023.
+
+
 <br><br>
 
-### Coverage snapshot - 01 September 2023
+#### Coverage snapshot - 01 September 2023
 
 -   This report summarises the vaccination history of adults in England as of 01 September 2023 - immediately prior to the Autumn 2023 COVID-19 vaccine booster campaign.
 
@@ -148,11 +151,13 @@ An overview of COVID-19 vaccine implementation for UK adults is given below. Add
 
 <br><br>
 
-### Vaccination history by age group {.tabset}
+#### Vaccination history by age group {.tabset}
 
 Click on the tabs to display the data as a figure or table. Abbreviations: IQR, interquartile range; Unvax, unvaccinated.
 
-#### Summary figure
+##### Summary figure
+
+*In the plot on the right, the height of the lines represents the relative proportion of individuals.*
 
 ```{r, fig.width=12, fig.height=3.5}
 # Function with basic plot parameters for stacked count plot
@@ -197,7 +202,7 @@ g2_extras = function(gg) {
 g3_extras = function(gg) {
   gg + 
     #geom_violin(fill=pal[10], alpha=0.2) +  
-    geom_density_ridges(fill=pal[10], alpha=0.2, scale=0.5, bandwidth=1) +
+    geom_density_ridges(colour=pal[10], fill=pal[10], alpha=0.2, scale=0.5, bandwidth=1) +
     theme_bw() +
     #scale_x_reverse(limits=c(30,0), breaks=c(30,24,18,12,6,0), labels=c("Unvax/\n>24","24","18","12","6","0")) +
     scale_x_continuous(limits=c(0,30), breaks=c(0,6,12,18,24,30), labels=c("0","6","12","18","24","Unvax/\n>24")) +
@@ -224,7 +229,7 @@ plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1.1,1.2))
 
 <br><br>
 
-#### Summary table
+##### Summary table
 
 ```{r}
 d_all %>% 
@@ -243,13 +248,13 @@ d_all %>%
 
 <br><br>
 
-### Vaccination history by age group, ethnicity, and deprivation {.tabset}
+#### Vaccination history by age group, ethnicity, and deprivation {.tabset}
 
-Click on the tabs to display summary figures and tables. The two figures provide a summary of data broken down by ethnicity and deprivation index. The tables include a more detailed breakdown of vaccination history according to demographic and clinical subgroups (including a more narrow definition of ethnicity). Abbreviations: CKD, chronic kidney disease; IMD, index of multiple deprivation; IQR, interquartile range; RRT, renal replacement therapy; Unvax, unvaccinated.
+Click on the tabs to display summary figures and tables. The figures provide a summary of data broken down by ethnicity and deprivation index. The tables provide a more detailed breakdown of vaccination history according to demographic and clinical subgroups (including more narrowly defined ethnic groups). Abbreviations: CKD, chronic kidney disease; IMD, index of multiple deprivation; IQR, interquartile range; RRT, renal replacement therapy; Unvax, unvaccinated.
 
-#### Figure (ethnicity)
+##### Figure (ethnicity)
 
-*See tables for vaccination history according to narrow definition of ethnicity.*
+*See tables for vaccination history according to more narrowly defined of ethnicity. In the plots on the right, the height of the lines represents the relative proportion of individuals.*
 
 ```{r, fig.width=12, fig.height=10}
 g1 = ggplot(subset(d_long, Covariate=="Ethnicity (broad categories)"), 
@@ -274,7 +279,7 @@ plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1.1,1.2))
 
 <br><br>
 
-#### Figure (deprivation)
+##### Figure (deprivation)
 
 ```{r, fig.width=12, fig.height=10}
 g1 = ggplot(subset(d_long, Covariate=="IMD quintile"), 
@@ -299,7 +304,7 @@ plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1.1,1.2))
 
 <br><br>
 
-#### Table (75y+)
+##### Table (75y+)
 
 ```{r}
 # Function to summarise vaccination history for age subgroup
@@ -323,7 +328,7 @@ subgroup_gt(d_75plus)
 
 <br><br>
 
-#### Table (65-74y)
+##### Table (65-74y)
 
 ```{r}
 subgroup_gt(d_65to74)
@@ -331,7 +336,7 @@ subgroup_gt(d_65to74)
 
 <br><br>
 
-#### Table (50-64y)
+##### Table (50-64y)
 
 ```{r}
 subgroup_gt(d_50to64)
@@ -339,7 +344,7 @@ subgroup_gt(d_50to64)
 
 <br><br>
 
-#### Table (18-49y)
+##### Table (18-49y)
 
 ```{r}
 subgroup_gt(d_18to49)
