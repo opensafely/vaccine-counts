@@ -177,7 +177,7 @@ g1_extras = function(gg) {
           panel.spacing = unit(1, "lines"),
           axis.text = element_text(size = 14),
           axis.title = element_text(size = 14), 
-          axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0))) +
+          axis.title.y = element_text(margin = margin(t = 0, r = 25, b = 0, l = 0))) +
     guides(fill = guide_legend(nrow = 1, reverse = TRUE))
 }
 
@@ -214,7 +214,7 @@ g3_extras = function(gg) {
           axis.text.x = element_text(size = 14),
           axis.text.y = element_blank(),
           axis.title = element_text(size = 14),
-          plot.margin = margin(r = 10))
+          plot.margin = margin(r = 20))
 }
 
 # Create plots for vaccination history by age group
@@ -254,7 +254,7 @@ Click on the tabs to display summary figures and tables. The figures provide a s
 
 ##### Figure (ethnicity)
 
-*See tables for vaccination history according to more narrowly defined of ethnicity. In the plots on the right, the height of the lines represents the relative proportion of individuals.*
+*See tables for vaccination history according to more narrowly defined ethnic groups. In the plots on the right, the height of the lines represents the relative proportion of individuals.*
 
 ```{r, fig.width=12, fig.height=10}
 g1 = ggplot(subset(d_long, Covariate=="Ethnicity (broad categories)"), 
@@ -285,7 +285,7 @@ plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1.1,1.2))
 g1 = ggplot(subset(d_long, Covariate=="IMD quintile"), 
             aes(x=Level, y=Perc, fill = Count)) %>%
   g1_extras() +
-  scale_x_discrete(limits=rev) + xlab("Index of multiple deprivation quintile") +
+  scale_x_discrete(limits=rev) + xlab("IMD quintile") +
   facet_grid(Population~.,scales = "free_y", space = "free_y") 
 
 g2 = ggplot(subset(d, Covariate=="IMD quintile"), 
