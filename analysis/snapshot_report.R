@@ -137,6 +137,9 @@ tab_combined = redact_count_column(tab_combined, "Vax_past_24m")
 # Apply final redaction to N
 tab_combined[,"N"][tab_combined[,"N"]<=redaction_threshold] = NA
 
+# Drop dementia reporting for <65s
+tab_combined = subset(tab_combined, !(Covariate=="Dementia" & Population %in% c("18-49","50-64")))
+
 # Save outputs
 output_dir <- here("output", "snapshot_report")
 fs::dir_create(output_dir)
