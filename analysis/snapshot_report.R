@@ -141,3 +141,4 @@ tab_combined[,"N"][tab_combined[,"N"]<=redaction_threshold] = NA
 output_dir <- here("output", "snapshot_report")
 fs::dir_create(output_dir)
 write.csv(tab_combined, file = paste0(output_dir, "/snapshot_summary.csv"))
+saveRDS(object = tab_combined, file = paste0(output_dir, "/snapshot_summary.rds"), compress = TRUE)

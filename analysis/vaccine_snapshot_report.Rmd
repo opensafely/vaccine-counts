@@ -43,7 +43,7 @@ d_full <- read_rds(here::here("output", "snapshot", "processed_snapshot.rds")) %
 d_full$time_since_last_vax_months[d_full$time_since_last_vax_months>24] = 30
 
 # Read in summary data and define clean variables for tabulations
-d <- read.csv(here::here("output", "snapshot_report", "snapshot_summary.csv"), row.names=1) %>%
+d <- read_rds(here::here("output", "snapshot_report", "snapshot_summary.rds")) %>%
   mutate(Clean_N = formatC(N, big.mark=","),
          Clean_0 = formatC(Dose_0, big.mark=","),
          Clean_1 = formatC(Dose_1, big.mark=","),

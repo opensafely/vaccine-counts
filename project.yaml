@@ -59,9 +59,11 @@ actions:
     run: r:latest analysis/snapshot_report.R
     needs: [process_snapshot]
     outputs:
+      highly_sensitive:
+        rds: output/snapshot_report/snapshot_summary.rds
       moderately_sensitive:
         csv: output/snapshot_report/snapshot_summary.csv
-
+    
   html_snapshot:
     run: r:latest -e 'rmarkdown::render("analysis/vaccine_snapshot_report.Rmd", knit_root_dir = "/workspace", output_dir="/workspace/output/snapshot_report")'
     needs: [process_snapshot, report_snapshot]
