@@ -29,6 +29,7 @@ data_75plus <- subset(data, agegroup_medium=="75+")
 
 ## Set rounding and redaction thresholds
 rounding_threshold = 7
+redaction_threshold = 7
 
 # Function to summarise vaccination history for given data frame or piped subset
 summarise_vax_history = function(data) {
@@ -105,11 +106,38 @@ tab_50to64 <- summarise_covariates(data_50to64, "50-64")
 tab_65to74 <- summarise_covariates(data_65to74, "65-74")
 tab_75plus <- summarise_covariates(data_75plus, "75+")
 
-## Combine outputs
+# Combine outputs
 tab_combined <- rbind(tab_whole_pop, tab_18to49, tab_50to64, tab_65to74, tab_75plus) %>%
   relocate(Population, Covariate, Level)
 
-## Save outputs
+# Redact summary metrics for groups with <100
+tab_combined$Median_dose_count[tab_combined$N<100] = NA
+tab_combined$Q1_dose_count[tab_combined$N<100] = NA
+tab_combined$Q3_dose_count[tab_combined$N<100] = NA
+tab_combined$Median_time_since_last_dose[tab_combined$N<100] = NA
+tab_combined$Q1_dose_time_since_last_dose[tab_combined$N<100] = NA
+tab_combined$Q3_dose_time_since_last_dose[tab_combined$N<100] = NA
+
+# Redact rounded counts <= redaction threshold 
+redact_count_column = function(data, col_name) {
+  data[,col_name][data$N<100 | data[,col_name]<=redaction_threshold] = NA
+  data
+}
+
+# Apply redaction to count columns
+tab_combined = redact_count_column(tab_combined, "Dose_0")
+tab_combined = redact_count_column(tab_combined, "Dose_1")
+tab_combined = redact_count_column(tab_combined, "Dose_2")
+tab_combined = redact_count_column(tab_combined, "Dose_3")
+tab_combined = redact_count_column(tab_combined, "Dose_4")
+tab_combined = redact_count_column(tab_combined, "Dose_5plus")
+tab_combined = redact_count_column(tab_combined, "Vax_past_12m")
+tab_combined = redact_count_column(tab_combined, "Vax_past_24m")
+
+# Apply final redaction to N
+tab_combined[,"N"][tab_combined[,"N"]<=redaction_threshold] = NA
+
+# Save outputs
 output_dir <- here("output", "snapshot_report")
 fs::dir_create(output_dir)
 write.csv(tab_combined, file = paste0(output_dir, "/snapshot_summary.csv"))

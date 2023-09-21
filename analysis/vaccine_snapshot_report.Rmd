@@ -77,6 +77,10 @@ d <- read.csv(here::here("output", "snapshot_report", "snapshot_summary.csv"), r
   ) %>%
   rename(Integer_N = N, N = Clean_N)
 
+# Clean redactions
+d[d=="NA (NA%)"] = "[Redacted]"
+d[d=="NA (NA-NA)"] = "[Redacted]"
+
 ## Set factor levels
 d$Covariate = factor(d$Covariate, levels=unique(d$Covariate))
 d$Level = factor(d$Level, levels=unique(d$Level))
@@ -128,7 +132,7 @@ An overview of COVID vaccine implementation for UK adults is given below. Additi
 
 #### Coverage snapshot - 01 September 2023
 
-This report summarises the vaccination history of adults in England as of 01 September 2023 - immediately prior to the Autumn 2023 COVID vaccine booster campaign. Groups are defined as follows:
+-   This report summarises the vaccination history of adults in England as of 01 September 2023 - immediately prior to the Autumn 2023 COVID vaccine booster campaign.
 
 -   Age is calculated at 01 September 2023. Age groups (18-49, 50-64, 65-74, and 75+) reflect the eligibility cut-offs used over successive booster campaigns in the UK, as described above.
 
@@ -138,11 +142,15 @@ This report summarises the vaccination history of adults in England as of 01 Sep
 
 -   We do not distinguish between vaccine products or manufacturers (Oxford/AstraZeneca, Pfizer/BioNTech, or Moderna).
 
+-   Unvaccinated individuals were assigned a value of 36 months for time since last dose (exceeding the maximum observation among vaccinated individuals).
+
+-   Patient counts are rounded to the nearest 7. Rounded counts of <=7 are redacted, as are all summary metrics for population subgroups with less than 100 individuals.
+
 <br><br>
 
 #### Vaccination history by age group {.tabset}
 
-Click on the tabs to display the data as a figure or table. Patient counts are rounded to the nearest 7.
+Click on the tabs to display the data as a figure or table. Abbreviations: IQR, interquartile range; Unvax, unvaccinated.
 
 ##### Summary figure
 
@@ -232,18 +240,14 @@ d_all %>%
     columns = c("0", "1", "2", "3", "4", "5+")
   ) %>%
    tab_options(row_group.font.weight="bold", column_labels.font.weigh="bold") %>%
-   tab_options(table.font.size = pct(95)) %>%
-   tab_footnote(
-    footnote = "Unvaccinated individuals were assigned a value of 36 months for these calculations (exceeding the maximum observation among vaccinated individuals).",
-    locations = cells_column_labels(columns = `Time in months since last dose, median (IQR)`)
-  )
+   tab_options(table.font.size = pct(95))
 ```
 
 <br><br>
 
 #### Vaccination history by age group, ethnicity, and deprivation {.tabset}
 
-Click on the tabs to display summary figures and tables. The two figures provide a summary of data broken down by ethnicity and deprivation index. The tables include a more detailed breakdown of vaccination history according to demographic and clinical subgroups (including a more narrow definition of ethnicity). Patient counts are rounded to the nearest 7. Abbreviations: CKD, chronic kidney disease; IMD, index of multiple deprivation; RRT, renal replacement therapy.
+Click on the tabs to display summary figures and tables. The two figures provide a summary of data broken down by ethnicity and deprivation index. The tables include a more detailed breakdown of vaccination history according to demographic and clinical subgroups (including a more narrow definition of ethnicity). Patient counts are rounded to the nearest 7. Abbreviations: CKD, chronic kidney disease; IMD, index of multiple deprivation; IQR, interquartile range; RRT, renal replacement therapy; Unvax, unvaccinated.
 
 ##### Figure (ethnicity)
 
@@ -312,16 +316,14 @@ subgroup_gt = function(d_subgroup) {
       columns = c("0", "1", "2", "3", "4", "5+")
     ) %>%
     tab_options(row_group.font.weight="bold", column_labels.font.weigh="bold") %>%
-    tab_options(table.font.size = pct(90)) %>%
-    tab_footnote(
-      footnote = "Unvaccinated individuals were assigned a value of 36 months for these calculations (exceeding the maximum observation among vaccinated individuals).",
-      locations = cells_column_labels(columns = `Time in months since last dose, median (IQR)`)
-    )
+    tab_options(table.font.size = pct(90))
 }
 
 # Generate table
 subgroup_gt(d_75plus)
 ```
+
+<br><br>
 
 ##### Table (65-74y)
 
@@ -329,11 +331,15 @@ subgroup_gt(d_75plus)
 subgroup_gt(d_65to74)
 ```
 
+<br><br>
+
 ##### Table (50-64y)
 
 ```{r}
 subgroup_gt(d_50to64)
 ```
+
+<br><br>
 
 ##### Table (18-49y)
 
