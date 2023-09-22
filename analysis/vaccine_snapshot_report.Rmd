@@ -150,7 +150,7 @@ g1_extras = function(gg) {
     theme(title = element_text(size = 10),
           legend.position = "bottom",
           legend.title = element_blank(),
-          legend.text = element_text(size = 14),
+          legend.text = element_text(size = 13),
           strip.background = element_blank(),
           strip.text = element_blank(),
           panel.spacing = unit(1, "lines"),
