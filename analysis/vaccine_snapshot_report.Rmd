@@ -116,7 +116,7 @@ pal = brewer.pal(n = 10, name = "RdBu")
 
 -   This report summarises the vaccination history of adults in England as of 01 September 2023 - immediately prior to the Autumn 2023 COVID-19 vaccine booster campaign. A summary of COVID-19 vaccine implementation for adults in the UK is given at the bottom of this page. 
 
--   Age is calculated at 01 September 2023. Age groups (18-49, 50-64, 65-74, and 75+) reflect the eligibility cut-offs used over successive booster campaigns in the UK, as described at the bottom of this page.
+-   Age is calculated at 01 September 2023. Age groups (18-49, 50-64, 65-74, and 75+) reflect the eligibility cut-offs used over successive booster campaigns in the UK, as described below.
 
 -   Clinical subgroups are defined using codelists described in our [peer-reviewed publication in the Lancet Public Health](https://www.thelancet.com/journals/lanpub/article/PIIS2468-2667(23)00079-8/fulltext).
 
@@ -147,7 +147,7 @@ g1_extras = function(gg) {
     theme_bw() + 
     scale_fill_manual(values=pal[c(10,9,8,3,2,1)]) +
     ggtitle("Dose count") + ylab("%") + xlab("Age (y)") +
-    theme(title = element_text(size = 10.5),
+    theme(title = element_text(size = 10),
           legend.position = "bottom",
           legend.title = element_blank(),
           legend.text = element_text(size = 14),
@@ -156,7 +156,7 @@ g1_extras = function(gg) {
           panel.spacing = unit(1, "lines"),
           axis.text = element_text(size = 14),
           axis.title = element_text(size = 14), 
-          axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 0, l = 0))) +
+          axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0))) +
     guides(fill = guide_legend(nrow = 1, reverse = TRUE))
 }
 
@@ -168,7 +168,7 @@ g2_extras = function(gg) {
     theme_bw() + 
     ylim(0,100) +
     ggtitle("Vaccinated in past 12 months (%)") + ylab("%") + xlab(" ") +
-    theme(title = element_text(size = 10.5),
+    theme(title = element_text(size = 10),
           strip.background = element_blank(),
           strip.text = element_blank(),
           panel.spacing = unit(1, "lines"),
@@ -186,7 +186,7 @@ g3_extras = function(gg) {
     #scale_x_reverse(limits=c(30,0), breaks=c(30,24,18,12,6,0), labels=c("Unvax/\n>24","24","18","12","6","0")) +
     scale_x_continuous(limits=c(0,30), breaks=c(0,6,12,18,24,30), labels=c("0","6","12","18","24","Unvax/\n>24")) +
     ggtitle("Time since last dose") + ylab(" ") + xlab("Months") +
-    theme(title = element_text(size = 10.5),
+    theme(title = element_text(size = 10),
           strip.background = element_blank(),
           strip.text = element_text(size = 14),
           panel.spacing = unit(1, "lines"),
@@ -240,7 +240,8 @@ g1 = ggplot(subset(d_long, Covariate=="Ethnicity (broad categories)"),
             aes(x=Level, y=Perc, fill = Count)) %>%
   g1_extras() +
   scale_x_discrete(limits=rev) + xlab("Ethnicity") +
-  facet_grid(Population~.,scales = "free_y", space = "free_y") 
+  facet_grid(Population~.,scales = "free_y", space = "free_y") +
+  theme(axis.text.y = element_text(size=12))
 
 g2 = ggplot(subset(d, Covariate=="Ethnicity (broad categories)"), 
                    aes(x=Level, y=as.numeric(Perc_past_12m))) %>%
@@ -265,7 +266,8 @@ g1 = ggplot(subset(d_long, Covariate=="IMD quintile"),
             aes(x=Level, y=Perc, fill = Count)) %>%
   g1_extras() +
   scale_x_discrete(limits=rev) + xlab("IMD quintile") +
-  facet_grid(Population~.,scales = "free_y", space = "free_y") 
+  facet_grid(Population~.,scales = "free_y", space = "free_y") +
+  theme(axis.text.y = element_text(size=12)) 
 
 g2 = ggplot(subset(d, Covariate=="IMD quintile"), 
                    aes(x=Level, y=as.numeric(Perc_past_12m))) %>%
