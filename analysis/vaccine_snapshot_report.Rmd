@@ -241,7 +241,8 @@ g1 = ggplot(subset(d_long, Covariate=="Ethnicity (broad categories)"),
   g1_extras() +
   scale_x_discrete(limits=rev) + xlab("Ethnicity") +
   facet_grid(Population~.,scales = "free_y", space = "free_y") +
-  theme(axis.text.y = element_text(size=12))
+  theme(axis.text.y = element_text(size=12),
+        legend.text = element_text(size=11))
 
 g2 = ggplot(subset(d, Covariate=="Ethnicity (broad categories)"), 
                    aes(x=Level, y=as.numeric(Perc_past_12m))) %>%
@@ -267,7 +268,8 @@ g1 = ggplot(subset(d_long, Covariate=="IMD quintile"),
   g1_extras() +
   scale_x_discrete(limits=rev) + xlab("IMD quintile") +
   facet_grid(Population~.,scales = "free_y", space = "free_y") +
-  theme(axis.text.y = element_text(size=12)) 
+  theme(axis.text.y = element_text(size=12),
+        legend.text = element_text(size=11)) 
 
 g2 = ggplot(subset(d, Covariate=="IMD quintile"), 
                    aes(x=Level, y=as.numeric(Perc_past_12m))) %>%
