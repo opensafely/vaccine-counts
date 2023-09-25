@@ -110,13 +110,30 @@ d_long$Count = factor(d_long$Count, levels=c("5+", "4", "3", "2", "1", "0"))
 pal = brewer.pal(n = 10, name = "RdBu")
 ```
 
-<br><br>
+<br>
 
-#### Coverage snapshot - 01 September 2023
+### Contents
 
--   This report summarises the vaccination history of adults in England as of 01 September 2023 - immediately prior to the Autumn 2023 COVID-19 vaccine booster campaign. A summary of COVID-19 vaccine implementation for adults in the UK is given at the bottom of this page. 
+* [Overview of coverage snapshot - 01 September 2023](#coverage-snapshot-september-2023)
+* [Summary charts](#summary-charts)
+  + [Vaccination history by age](#vaccination-by-age-fig)
+  + [Vaccination history by age and ethnicity](#vaccination-by-age-ethnicity-fig)
+  + [Vaccination history by age and index of multiple deprivation](#vaccination-by-age-deprivation-fig)
+* [Summary tables](#summary-tables)
+  + [Vaccination history by age](#vaccination-by-age-table)
+  + [75y+ population: Vaccination history by demographic and clinical subgroups](#vaccination-by-demographic-clinical-75plus-table)
+  + [65-74y population: Vaccination history by demographic and clinical subgroups](#vaccination-by-demographic-clinical-65to74-table)
+  + [50-64y population: Vaccination history by demographic and clinical subgroups](#vaccination-by-demographic-clinical-50to64-table)
+  + [18-49y population: Vaccination history by demographic and clinical subgroups](#vaccination-by-demographic-clinical-18to49-table)
+* [UK vaccine implementation in adults](#uk-vaccine-implementation)
 
--   Age is calculated at 01 September 2023. Age groups (18-49, 50-64, 65-74, and 75+) reflect the eligibility cut-offs used over successive booster campaigns in the UK, as described below.
+<br>
+
+### <a name="coverage-snapshot-september-2023"></a> Overview of coverage snapshot - 01 September 2023
+
+-   This report summarises the vaccination history of adults in England as of 01 September 2023 - immediately prior to the Autumn 2023 COVID-19 vaccine booster campaign. A summary of COVID-19 vaccine implementation for adults in the UK is given [below](#uk-vaccine-implementation). 
+
+-   Age is calculated at 01 September 2023. Age groups (18-49, 50-64, 65-74, and 75+) reflect the eligibility cut-offs used over successive booster campaigns in the UK, as described [below](#uk-vaccine-implementation).
 
 -   Clinical subgroups are defined using codelists described in our [peer-reviewed publication in the Lancet Public Health](https://www.thelancet.com/journals/lanpub/article/PIIS2468-2667(23)00079-8/fulltext).
 
@@ -124,19 +141,30 @@ pal = brewer.pal(n = 10, name = "RdBu")
 
 -   We do not distinguish between vaccine products or manufacturers (Oxford/AstraZeneca, Pfizer/BioNTech, or Moderna).
 
--   For calculations of median time since last dose, unvaccinated individuals were assigned a value of 36 months (exceeding the maximum possible value among vaccinated individuals).
+-   For calculation of median time since last dose, unvaccinated individuals were assigned a value of 36 months (exceeding the maximum possible value among vaccinated individuals).
 
 -   Patient counts are rounded to the nearest 7. Rounded counts of <=7 are redacted.
 
-<br><br>
+<br>
 
-#### Vaccination history by age group {.tabset}
+### <a name="summary-charts"></a> Summary charts
 
-Click on the tabs to display the data as a figure or table. Abbreviations: IQR, interquartile range; Unvax, unvaccinated.
+<br>
 
-##### Summary figure
+##### <a name="vaccination-by-age-fig"></a> Vaccination history by age
 
-*In the plot on the right, the height of the lines represents the relative proportion of individuals.*
+<details><summary>Show/hide more details</summary>
+*See [summary tables](#summary-tables) for additional data.*
+
+*In the column on the right, time since last dose is displayed using density plots, which show the relative concentration of values over a given range. In this instance, the height of the lines represents the proportion of individuals, and peaks reflect the timing of different booster campaigns.*
+
+*Specifically, peaks at 2-6 months reflect individuals most recently vaccinated during the Spring 2023 booster campaign, peaks at 9-12 months reflect individuals most recently vaccinated during the Autumn 2022 campaign, and peaks at 18-24 months reflect individuals most recently vaccinated during the Autumn 2021 booster campaign. Further details on the timing and eligibility for each campaign can be found [below](#uk-vaccine-implementation).*
+
+*In addition to these density plots, the average (median) time since last dose for each subgroup is provided in the [summary tables](#summary-tables).*
+
+*Abbreviation: Unvax = unvaccinated.*
+</details>
+<br>
 
 ```{r, fig.width=12, fig.height=3.5}
 # Function with basic plot parameters for stacked count plot
@@ -145,19 +173,20 @@ g1_extras = function(gg) {
     geom_bar(stat="identity", position="stack") +
     coord_flip() +
     theme_bw() + 
-    scale_fill_manual(values=pal[c(10,9,8,3,2,1)]) +
+    scale_fill_manual("Doses", values=pal[c(10,9,8,3,2,1)]) +
     ggtitle("Dose count") + ylab("%") + xlab("Age (y)") +
     theme(title = element_text(size = 10),
           legend.position = "bottom",
-          legend.title = element_blank(),
-          legend.text = element_text(size = 13),
+          legend.title = element_text(size = 12),
+          legend.text = element_text(size = 12),
           strip.background = element_blank(),
           strip.text = element_blank(),
           panel.spacing = unit(1, "lines"),
           axis.text = element_text(size = 14),
           axis.title = element_text(size = 14), 
           axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0))) +
-    guides(fill = guide_legend(nrow = 1, reverse = TRUE))
+    guides(fill = guide_legend(nrow = 1, reverse = TRUE, title.position="top",
+                               title.hjust = 0.5))
 }
 
 # Function with basic plot parameters for prevalence plot
@@ -183,7 +212,6 @@ g3_extras = function(gg) {
     #geom_violin(fill=pal[10], alpha=0.2) +  
     geom_density_ridges(colour=pal[10], fill=pal[10], alpha=0.2, scale=0.5, bandwidth=1) +
     theme_bw() +
-    #scale_x_reverse(limits=c(30,0), breaks=c(30,24,18,12,6,0), labels=c("Unvax/\n>24","24","18","12","6","0")) +
     scale_x_continuous(limits=c(0,30), breaks=c(0,6,12,18,24,30), labels=c("0","6","12","18","24","Unvax/\n>24")) +
     ggtitle("Time since last dose") + ylab(" ") + xlab("Months") +
     theme(title = element_text(size = 10),
@@ -208,32 +236,20 @@ plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
 
 <br><br>
 
-##### Summary table
+##### <a name="vaccination-by-age-ethnicity-fig"></a> Vaccination history by age and ethnicity
 
-```{r}
-d_all %>% 
-  rename(`Age group` = Level) %>%
-  arrange(rev(`Age group`)) %>%
-  select(`Age group`, N, `0`, `1`, `2`, `3`, `4`, `5+`, `Dose count, median (IQR)`, 
-         `Vaccinated in past 12 months, n (%)`, `Vaccinated in past 24 months, n (%)`, `Time in months since last dose, median (IQR)`) %>%
-  gt() %>%
-  tab_spanner(
-    label = "Dose count",
-    columns = c("0", "1", "2", "3", "4", "5+")
-  ) %>%
-   tab_options(row_group.font.weight="bold", column_labels.font.weigh="bold") %>%
-   tab_options(table.font.size = pct(95))
-```
+<details><summary>Show/hide more details</summary>
+*See [summary tables](#summary-tables) for additional data, including vaccination history according to more narrowly defined ethnic groups.*
 
-<br><br>
+*In the column on the right, time since last dose is displayed using density plots, which show the relative concentration of values over a given range. In this instance, the height of the lines represents the proportion of individuals, and peaks reflect the timing of different booster campaigns.*
 
-#### Vaccination history by age group, ethnicity, and deprivation {.tabset}
+*Specifically, peaks at 2-6 months reflect individuals most recently vaccinated during the Spring 2023 booster campaign, peaks at 9-12 months reflect individuals most recently vaccinated during the Autumn 2022 campaign, and peaks at 18-24 months reflect individuals most recently vaccinated during the Autumn 2021 booster campaign. Further details on the timing and eligibility for each campaign can be found [below](#uk-vaccine-implementation).*
 
-Click on the tabs to display summary figures and tables. The figures provide a summary of data broken down by ethnicity and deprivation index. The tables provide a more detailed breakdown of vaccination history according to demographic and clinical subgroups (including more narrowly defined ethnic groups). Abbreviations: CKD, chronic kidney disease; IMD, index of multiple deprivation; IQR, interquartile range; RRT, renal replacement therapy; Unvax, unvaccinated.
+*In addition to these density plots, the average (median) time since last dose for each subgroup is provided in the [summary tables](#summary-tables).*
 
-##### Figure (ethnicity)
-
-*See tables for vaccination history according to more narrowly defined ethnic groups. In the plots on the right, the height of the lines represents the relative proportion of individuals.*
+*Abbreviation: Unvax = unvaccinated.*
+</details>
+<br>
 
 ```{r, fig.width=12, fig.height=10}
 g1 = ggplot(subset(d_long, Covariate=="Ethnicity (broad categories)"), 
@@ -242,6 +258,7 @@ g1 = ggplot(subset(d_long, Covariate=="Ethnicity (broad categories)"),
   scale_x_discrete(limits=rev) + xlab("Ethnicity") +
   facet_grid(Population~.,scales = "free_y", space = "free_y") +
   theme(axis.text.y = element_text(size=12),
+        legend.title = element_text(size = 11),
         legend.text = element_text(size=11))
 
 g2 = ggplot(subset(d, Covariate=="Ethnicity (broad categories)"), 
@@ -260,7 +277,19 @@ plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
 
 <br><br>
 
-##### Figure (deprivation)
+##### <a name="vaccination-by-age-deprivation-fig"></a> Vaccination history by age and index of multiple deprivation
+<details><summary>Show/hide more details</summary>
+*See [summary tables](#summary-tables) for additional data.*
+
+*In the column on the right, time since last dose is displayed using density plots, which show the relative concentration of values over a given range. In this instance, the height of the lines represents the proportion of individuals, and peaks reflect the timing of different booster campaigns.*
+
+*Specifically, peaks at 2-6 months reflect individuals most recently vaccinated during the Spring 2023 booster campaign, peaks at 9-12 months reflect individuals most recently vaccinated during the Autumn 2022 campaign, and peaks at 18-24 months reflect individuals most recently vaccinated during the Autumn 2021 booster campaign. Further details on the timing and eligibility for each campaign can be found [below](#uk-vaccine-implementation).*
+
+*In addition to these density plots, the average (median) time since last dose for each subgroup is provided in the [summary tables](#summary-tables).*
+
+*Abbreviation: Unvax = unvaccinated.*
+</details>
+<br>
 
 ```{r, fig.width=12, fig.height=10}
 g1 = ggplot(subset(d_long, Covariate=="IMD quintile"), 
@@ -269,6 +298,7 @@ g1 = ggplot(subset(d_long, Covariate=="IMD quintile"),
   scale_x_discrete(limits=rev) + xlab("IMD quintile") +
   facet_grid(Population~.,scales = "free_y", space = "free_y") +
   theme(axis.text.y = element_text(size=12),
+        legend.title = element_text(size = 11),
         legend.text = element_text(size=11)) 
 
 g2 = ggplot(subset(d, Covariate=="IMD quintile"), 
@@ -287,7 +317,33 @@ plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
 
 <br><br>
 
-##### Table (75y+)
+### <a name="summary-tables"></a> Summary tables
+
+<br>
+
+##### <a name="vaccination-by-age-table"></a> Vaccination history by age
+
+```{r}
+d_all %>% 
+  rename(`Age group` = Level) %>%
+  arrange(rev(`Age group`)) %>%
+  select(`Age group`, N, `0`, `1`, `2`, `3`, `4`, `5+`, `Dose count, median (IQR)`, 
+         `Vaccinated in past 12 months, n (%)`, `Vaccinated in past 24 months, n (%)`, `Time in months since last dose, median (IQR)`) %>%
+  gt() %>%
+  tab_spanner(
+    label = "Dose count",
+    columns = c("0", "1", "2", "3", "4", "5+")
+  ) %>%
+   tab_options(row_group.font.weight="bold", column_labels.font.weigh="bold", container.overflow.y=FALSE) %>%
+   tab_options(table.font.size = pct(95))
+```
+*Abbreviation: IQR = interquartile range.*
+
+<br><br>
+
+##### <a name="vaccination-by-demographic-clinical-75plus-table"></a> 75y+ population: Vaccination history by demographic and clinical subgroups
+
+*Scroll down for additional rows.*
 
 ```{r}
 # Function to summarise vaccination history for age subgroup
@@ -296,46 +352,80 @@ subgroup_gt = function(d_subgroup) {
     select(Covariate, Level, N, `0`, `1`, `2`, `3`, `4`, `5+`, `Dose count, median (IQR)`, 
            `Vaccinated in past 12 months, n (%)`, `Vaccinated in past 24 months, n (%)`,
            `Time in months since last dose, median (IQR)`) %>%
-    gt(groupname_col = "Covariate") %>%
+    gt(groupname_col = "Covariate", id = "thistab") %>%
     tab_spanner(
       label = "Dose count",
-      columns = c("0", "1", "2", "3", "4", "5+")
+      columns = c("0", "1", "2", "3", "4", "5+"),
+      id = "count_spanner"
     ) %>%
-    tab_options(row_group.font.weight="bold", column_labels.font.weigh="bold") %>%
-    tab_options(table.font.size = pct(90))
+    tab_options(
+      row_group.font.weight="bold",
+      column_labels.font.weigh="bold",
+      table.font.size = pct(90), 
+      container.height = 500
+    ) %>%
+    opt_css(
+      "
+      #thistab th {
+          position: sticky;
+          top: 0;
+      }
+      #thistab thead>tr:nth-child(1) th {
+          box-shadow: 0px -1px 0px #D3D3D3, 0px 1px 0px #D3D3D3;
+      }
+      #thistab thead>tr:nth-child(2) th {
+          top: 41px;
+          box-shadow: 0px 1px 0px #D3D3D3;
+      }
+      "
+    )
 }
 
 # Generate table
-subgroup_gt(d_75plus)
+subgroup_gt(d_75plus) 
 ```
+
+<br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
 
 <br><br>
 
-##### Table (65-74y)
+##### <a name="vaccination-by-demographic-clinical-65to74-table"></a> 65-74y population: Vaccination history by demographic and clinical subgroups
+
+*Scroll down for additional rows.*
 
 ```{r}
 subgroup_gt(d_65to74)
 ```
 
+<br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
+
 <br><br>
 
-##### Table (50-64y)
+##### <a name="vaccination-by-demographic-clinical-50to64-table"></a> 50-64y population: Vaccination history by demographic and clinical subgroups
+
+*Scroll down for additional rows.*
 
 ```{r}
 subgroup_gt(d_50to64)
 ```
 
+<br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
+
 <br><br>
 
-##### Table (18-49y)
+##### <a name="vaccination-by-demographic-clinical-18to49-table"></a> 18-49y population: Vaccination history by demographic and clinical subgroups
+
+*Scroll down for additional rows.*
 
 ```{r}
 subgroup_gt(d_18to49)
 ```
 
-<br><br>
+<br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
 
-#### UK vaccine implementation in adults
+<br>
+
+### <a name="uk-vaccine-implementation"></a> UK vaccine implementation in adults
 
 An overview of COVID-19 vaccine implementation for UK adults is given below. Additional eligibility criteria can be found in [COVID-19: the green book, chapter 14a](https://www.gov.uk/government/publications/covid-19-the-green-book-chapter-14a).
 
@@ -347,7 +437,7 @@ An overview of COVID-19 vaccine implementation for UK adults is given below. Add
 
 -   **Spring 2022 booster campaign:** Over 75s, care home residents, and immunosuppressed individuals were offered an additional dose from March 2022.
 
--   **Autumn 2022 booster campaign:** Over 50s, care home residents and staff, immunosuppressed individuals, people aged 5-49 years in clinical risk groups or in close contact with immunosuppressed individuals, and carers aged 16-49 years were offered an additional dose from September 2022
+-   **Autumn 2022 booster campaign:** Over 50s, care home residents and staff, immunosuppressed individuals, people aged 5-49 years in clinical risk groups or in close contact with immunosuppressed individuals, and carers aged 16-49 years were offered an additional dose from September 2022.
 
 -   **Spring 2023 booster campaign:** Over 75s, care home residents, and immunosuppressed individuals were offered an additional dose from March 2023.
 
