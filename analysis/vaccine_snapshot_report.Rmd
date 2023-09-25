@@ -356,7 +356,6 @@ subgroup_gt = function(d_subgroup) {
     tab_spanner(
       label = "Dose count",
       columns = c("0", "1", "2", "3", "4", "5+"),
-      id = "count_spanner"
     ) %>%
     tab_options(
       row_group.font.weight="bold",
