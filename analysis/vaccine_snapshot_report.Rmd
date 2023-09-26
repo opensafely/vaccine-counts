@@ -158,7 +158,7 @@ pal = brewer.pal(n = 10, name = "RdBu")
 
 <br>
 
-##### <a name="vaccination-by-age-fig"></a> Vaccination history by age
+#### <a name="vaccination-by-age-fig"></a> Vaccination history by age
 
 <details><summary>Show/hide more details</summary>
 *See [summary tables](#summary-tables) for additional data.*
@@ -243,7 +243,7 @@ plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
 
 <br><br>
 
-##### <a name="vaccination-by-age-ethnicity-fig"></a> Vaccination history by age and ethnicity
+#### <a name="vaccination-by-age-ethnicity-fig"></a> Vaccination history by age and ethnicity
 
 <details><summary>Show/hide more details</summary>
 *See [summary tables](#summary-tables) for additional data, including vaccination history according to more narrowly defined ethnic groups.*
@@ -284,7 +284,7 @@ plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
 
 <br><br>
 
-##### <a name="vaccination-by-age-deprivation-fig"></a> Vaccination history by age and index of multiple deprivation
+#### <a name="vaccination-by-age-deprivation-fig"></a> Vaccination history by age and index of multiple deprivation
 
 <details><summary>Show/hide more details</summary>
 *See [summary tables](#summary-tables) for additional data.*
@@ -329,7 +329,7 @@ plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
 
 <br>
 
-##### <a name="vaccination-by-age-table"></a> Vaccination history by age
+#### <a name="vaccination-by-age-table"></a> Vaccination history by age
 
 ```{r}
 d_all %>% 
@@ -356,11 +356,9 @@ d_all %>%
 
 <br><br>
 
-##### <a name="vaccination-by-demographic-clinical-75plus-table"></a> 75y+ population: Vaccination history by demographic and clinical subgroups
+#### <a name="vaccination-by-demographic-clinical-75plus-table"></a> 75y+ population: Vaccination history by demographic and clinical subgroups
 
-<button class="btn btn-primary" data-toggle="collapse" data-target="#table_75plus"> Show/hide table</button>  
-
-<div id="table_75plus" class="collapse">
+<details><summary>Show/hide table</summary>
 
 <br>
 
@@ -392,15 +390,13 @@ subgroup_gt(d_75plus)
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
 
-</div>
+</details>
 
 <br><br>
 
-##### <a name="vaccination-by-demographic-clinical-65to74-table"></a> 65-74y population: Vaccination history by demographic and clinical subgroups
+#### <a name="vaccination-by-demographic-clinical-65to74-table"></a> 65-74y population: Vaccination history by demographic and clinical subgroups
 
-<button class="btn btn-primary" data-toggle="collapse" data-target="#table_65to74"> Show/hide table</button>  
-
-<div id="table_65to74" class="collapse">
+<details><summary>Show/hide table</summary>
 
 <br>
 
@@ -410,15 +406,13 @@ subgroup_gt(d_65to74)
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
 
-</div>
+</details>
 
 <br><br>
 
-##### <a name="vaccination-by-demographic-clinical-50to64-table"></a> 50-64y population: Vaccination history by demographic and clinical subgroups
+#### <a name="vaccination-by-demographic-clinical-50to64-table"></a> 50-64y population: Vaccination history by demographic and clinical subgroups
 
-<button class="btn btn-primary" data-toggle="collapse" data-target="#table_50to64"> Show/hide table</button>  
-
-<div id="table_50to64" class="collapse">
+<details><summary>Show/hide table</summary>
 
 <br>
 
@@ -428,15 +422,13 @@ subgroup_gt(d_50to64)
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
 
-</div>
+</details>
 
 <br><br>
 
-##### <a name="vaccination-by-demographic-clinical-18to49-table"></a> 18-49y population: Vaccination history by demographic and clinical subgroups
+#### <a name="vaccination-by-demographic-clinical-18to49-table"></a> 18-49y population: Vaccination history by demographic and clinical subgroups
 
-<button class="btn btn-primary" data-toggle="collapse" data-target="#table_18to49"> Show/hide table</button>  
-
-<div id="table_18to49" class="collapse">
+<details><summary>Show/hide table</summary>
 
 <br>
 
@@ -446,7 +438,7 @@ subgroup_gt(d_18to49)
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
 
-</div>
+</details>
 
 <br>
 
