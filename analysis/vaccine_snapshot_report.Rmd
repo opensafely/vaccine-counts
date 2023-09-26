@@ -130,9 +130,8 @@ pal = brewer.pal(n = 10, name = "RdBu")
   <li><a href="#vaccination-by-demographic-clinical-50to64-table">50-64y population: Vaccination history by demographic and clinical subgroups</a>
   <li><a href="#vaccination-by-demographic-clinical-18to49-table">18-49y population: Vaccination history by demographic and clinical subgroups</a>
 </ul>
-<a href="#uk-vaccine-implementation">UK vaccine implementation in adults</a>
+<li><a href="#uk-vaccine-implementation">UK vaccine implementation in adults</a>
 </ul>
-
 
 <br>
 
@@ -156,8 +155,6 @@ pal = brewer.pal(n = 10, name = "RdBu")
 
 ### <a name="summary-charts"></a> Summary charts
 
-<br>
-
 #### <a name="vaccination-by-age-fig"></a> Vaccination history by age
 
 <details><summary>Show/hide more details</summary>
@@ -170,8 +167,8 @@ pal = brewer.pal(n = 10, name = "RdBu")
 *In addition to these density plots, the average (median) time since last dose for each subgroup is provided in the [summary tables](#summary-tables).*
 
 *Abbreviation: Unvax = unvaccinated.*
-</details>
 <br>
+</details>
 
 ```{r, fig.width=12, fig.height=3.5}
 # Function with basic plot parameters for stacked count plot
@@ -241,7 +238,7 @@ g3 = ggplot(d_full, aes(y=age_plot, x=as.numeric(time_since_last_vax_months))) %
 plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
 ```
 
-<br><br>
+<br>
 
 #### <a name="vaccination-by-age-ethnicity-fig"></a> Vaccination history by age and ethnicity
 
@@ -255,8 +252,8 @@ plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
 *In addition to these density plots, the average (median) time since last dose for each subgroup is provided in the [summary tables](#summary-tables).*
 
 *Abbreviation: Unvax = unvaccinated.*
-</details>
 <br>
+</details>
 
 ```{r, fig.width=12, fig.height=10}
 g1 = ggplot(subset(d_long, Covariate=="Ethnicity (broad categories)"), 
@@ -282,7 +279,7 @@ g3 = ggplot(d_full, aes(y=ethnicity, x=as.numeric(time_since_last_vax_months))) 
 plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
 ```
 
-<br><br>
+<br>
 
 #### <a name="vaccination-by-age-deprivation-fig"></a> Vaccination history by age and index of multiple deprivation
 
@@ -296,8 +293,8 @@ plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
 *In addition to these density plots, the average (median) time since last dose for each subgroup is provided in the [summary tables](#summary-tables).*
 
 *Abbreviation: Unvax = unvaccinated.*
-</details>
 <br>
+</details>
 
 ```{r, fig.width=12, fig.height=10}
 g1 = ggplot(subset(d_long, Covariate=="IMD quintile"), 
@@ -323,11 +320,9 @@ g3 = ggplot(d_full, aes(y=imd, x=as.numeric(time_since_last_vax_months)))  %>%
 plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
 ```
 
-<br><br>
+<br>
 
 ### <a name="summary-tables"></a> Summary tables
-
-<br>
 
 #### <a name="vaccination-by-age-table"></a> Vaccination history by age
 
@@ -354,13 +349,11 @@ d_all %>%
 ```
 *Abbreviation: IQR = interquartile range.*
 
-<br><br>
+<br>
 
 #### <a name="vaccination-by-demographic-clinical-75plus-table"></a> 75y+ population: Vaccination history by demographic and clinical subgroups
 
 <details><summary>Show/hide table</summary>
-
-<br>
 
 ```{r}
 # Function to summarise vaccination history for age subgroup
@@ -392,13 +385,11 @@ subgroup_gt(d_75plus)
 
 </details>
 
-<br><br>
+<br>
 
 #### <a name="vaccination-by-demographic-clinical-65to74-table"></a> 65-74y population: Vaccination history by demographic and clinical subgroups
 
 <details><summary>Show/hide table</summary>
-
-<br>
 
 ```{r}
 subgroup_gt(d_65to74)
@@ -408,13 +399,11 @@ subgroup_gt(d_65to74)
 
 </details>
 
-<br><br>
+<br>
 
 #### <a name="vaccination-by-demographic-clinical-50to64-table"></a> 50-64y population: Vaccination history by demographic and clinical subgroups
 
 <details><summary>Show/hide table</summary>
-
-<br>
 
 ```{r}
 subgroup_gt(d_50to64)
@@ -424,13 +413,11 @@ subgroup_gt(d_50to64)
 
 </details>
 
-<br><br>
+<br>
 
 #### <a name="vaccination-by-demographic-clinical-18to49-table"></a> 18-49y population: Vaccination history by demographic and clinical subgroups
 
 <details><summary>Show/hide table</summary>
-
-<br>
 
 ```{r}
 subgroup_gt(d_18to49)
@@ -460,4 +447,4 @@ An overview of COVID-19 vaccine implementation for UK adults is given below. Add
 
 -   **Autumn 2023 booster campaign:** Over 65s, care home residents, people aged 6 months to 64 years in clinical risk groups, health and social care workers, people aged 12-64 years who are in close contact with immunosuppressed individuals, and carers aged 16-64 years are being offered an additional dose from September 2023.
 
-<br><br>
+<br>
