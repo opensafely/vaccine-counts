@@ -114,18 +114,25 @@ pal = brewer.pal(n = 10, name = "RdBu")
 
 ### Contents
 
-* [Overview of coverage snapshot - 01 September 2023](#coverage-snapshot-september-2023)
-* [Summary charts](#summary-charts)
-  + [Vaccination history by age](#vaccination-by-age-fig)
-  + [Vaccination history by age and ethnicity](#vaccination-by-age-ethnicity-fig)
-  + [Vaccination history by age and index of multiple deprivation](#vaccination-by-age-deprivation-fig)
-* [Summary tables](#summary-tables)
-  + [Vaccination history by age](#vaccination-by-age-table)
-  + [75y+ population: Vaccination history by demographic and clinical subgroups](#vaccination-by-demographic-clinical-75plus-table)
-  + [65-74y population: Vaccination history by demographic and clinical subgroups](#vaccination-by-demographic-clinical-65to74-table)
-  + [50-64y population: Vaccination history by demographic and clinical subgroups](#vaccination-by-demographic-clinical-50to64-table)
-  + [18-49y population: Vaccination history by demographic and clinical subgroups](#vaccination-by-demographic-clinical-18to49-table)
-* [UK vaccine implementation in adults](#uk-vaccine-implementation)
+<ul id="docNav">
+<li><a href="#coverage-snapshot-september-2023">Overview of coverage snapshot - 01 September 2023</a>
+<li><a href="#summary-charts">Summary charts</a>
+<ul class="square">
+  <li><a href="#vaccination-by-age-fig">Vaccination history by age</a>
+  <li><a href="#vaccination-by-age-ethnicity-fig">Vaccination history by age and ethnicity</a>
+  <li><a href="#vaccination-by-age-deprivation-fig">Vaccination history by age and index of multiple deprivation</a>
+</ul>
+<li><a href="#summary-tables">Summary tables</a>
+<ul class="square">
+  <li><a href="#vaccination-by-age-table">Vaccination history by age</a>
+  <li><a href="#vaccination-by-demographic-clinical-75plus-table">75y+ population: Vaccination history by demographic and clinical subgroups</a>
+  <li><a href="#vaccination-by-demographic-clinical-65to74-table">65-74y population: Vaccination history by demographic and clinical subgroups</a>
+  <li><a href="#vaccination-by-demographic-clinical-50to64-table">50-64y population: Vaccination history by demographic and clinical subgroups</a>
+  <li><a href="#vaccination-by-demographic-clinical-18to49-table">18-49y population: Vaccination history by demographic and clinical subgroups</a>
+</ul>
+<a href="#uk-vaccine-implementation">UK vaccine implementation in adults</a>
+</ul>
+
 
 <br>
 
@@ -278,6 +285,7 @@ plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
 <br><br>
 
 ##### <a name="vaccination-by-age-deprivation-fig"></a> Vaccination history by age and index of multiple deprivation
+
 <details><summary>Show/hide more details</summary>
 *See [summary tables](#summary-tables) for additional data.*
 
@@ -334,8 +342,15 @@ d_all %>%
     label = "Dose count",
     columns = c("0", "1", "2", "3", "4", "5+")
   ) %>%
-   tab_options(row_group.font.weight="bold", column_labels.font.weigh="bold", container.overflow.y=FALSE) %>%
-   tab_options(table.font.size = pct(95))
+  tab_options(
+    row_group.font.weight="bold", 
+    column_labels.font.weigh="bold", 
+    container.overflow.y=FALSE,
+    table.font.size = pct(95)
+  ) %>%
+  cols_align(
+    align = "left"
+  )
 ```
 *Abbreviation: IQR = interquartile range.*
 
@@ -343,7 +358,11 @@ d_all %>%
 
 ##### <a name="vaccination-by-demographic-clinical-75plus-table"></a> 75y+ population: Vaccination history by demographic and clinical subgroups
 
-*Scroll down for additional rows.*
+<button class="btn btn-primary" data-toggle="collapse" data-target="#table_75plus"> Show/hide table</button>  
+
+<div id="table_75plus" class="collapse">
+
+<br>
 
 ```{r}
 # Function to summarise vaccination history for age subgroup
@@ -359,24 +378,11 @@ subgroup_gt = function(d_subgroup) {
     ) %>%
     tab_options(
       row_group.font.weight="bold",
-      column_labels.font.weigh="bold",
-      table.font.size = pct(90), 
-      container.height = 500
+      column_labels.font.weight="bold",
+      table.font.size = pct(90)
     ) %>%
-    opt_css(
-      "
-      #thistab th {
-          position: sticky;
-          top: 0;
-      }
-      #thistab thead>tr:nth-child(1) th {
-          box-shadow: 0px -1px 0px #D3D3D3, 0px 1px 0px #D3D3D3;
-      }
-      #thistab thead>tr:nth-child(2) th {
-          top: 41px;
-          box-shadow: 0px 1px 0px #D3D3D3;
-      }
-      "
+    cols_align(
+      align = "left"
     )
 }
 
@@ -386,11 +392,17 @@ subgroup_gt(d_75plus)
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
 
+</div>
+
 <br><br>
 
 ##### <a name="vaccination-by-demographic-clinical-65to74-table"></a> 65-74y population: Vaccination history by demographic and clinical subgroups
 
-*Scroll down for additional rows.*
+<button class="btn btn-primary" data-toggle="collapse" data-target="#table_65to74"> Show/hide table</button>  
+
+<div id="table_65to74" class="collapse">
+
+<br>
 
 ```{r}
 subgroup_gt(d_65to74)
@@ -398,11 +410,17 @@ subgroup_gt(d_65to74)
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
 
+</div>
+
 <br><br>
 
 ##### <a name="vaccination-by-demographic-clinical-50to64-table"></a> 50-64y population: Vaccination history by demographic and clinical subgroups
 
-*Scroll down for additional rows.*
+<button class="btn btn-primary" data-toggle="collapse" data-target="#table_50to64"> Show/hide table</button>  
+
+<div id="table_50to64" class="collapse">
+
+<br>
 
 ```{r}
 subgroup_gt(d_50to64)
@@ -410,17 +428,25 @@ subgroup_gt(d_50to64)
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
 
+</div>
+
 <br><br>
 
 ##### <a name="vaccination-by-demographic-clinical-18to49-table"></a> 18-49y population: Vaccination history by demographic and clinical subgroups
 
-*Scroll down for additional rows.*
+<button class="btn btn-primary" data-toggle="collapse" data-target="#table_18to49"> Show/hide table</button>  
+
+<div id="table_18to49" class="collapse">
+
+<br>
 
 ```{r}
 subgroup_gt(d_18to49)
 ```
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
+
+</div>
 
 <br>
 
