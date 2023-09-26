@@ -346,7 +346,7 @@ d_all %>%
     row_group.font.weight="bold", 
     column_labels.font.weigh="bold", 
     container.overflow.y=FALSE,
-    table.font.size = pct(95)
+    table.font.size = pct(90)
   ) %>%
   cols_align(
     align = "left"
@@ -377,7 +377,7 @@ subgroup_gt = function(d_subgroup) {
     tab_options(
       row_group.font.weight="bold",
       column_labels.font.weight="bold",
-      table.font.size = pct(90)
+      table.font.size = pct(85)
     ) %>%
     cols_align(
       align = "left"
