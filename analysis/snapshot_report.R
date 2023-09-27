@@ -36,12 +36,12 @@ summarise_vax_history = function(data) {
   data <- data %>%
     summarise(
       N = plyr::round_any(length(agegroup_narrow), rounding_threshold),
-      Dose_0 = plyr::round_any(sum(n_vax==0), rounding_threshold),
-      Dose_1 = plyr::round_any(sum(n_vax==1), rounding_threshold),
-      Dose_2 = plyr::round_any(sum(n_vax==2), rounding_threshold),
-      Dose_3 = plyr::round_any(sum(n_vax==3), rounding_threshold),
-      Dose_4 = plyr::round_any(sum(n_vax==4), rounding_threshold),
-      Dose_5plus = plyr::round_any(sum(n_vax>=5), rounding_threshold),
+      Dose_count_0 = plyr::round_any(sum(n_vax==0), rounding_threshold),
+      Dose_count_1 = plyr::round_any(sum(n_vax==1), rounding_threshold),
+      Dose_count_2 = plyr::round_any(sum(n_vax==2), rounding_threshold),
+      Dose_count_3 = plyr::round_any(sum(n_vax==3), rounding_threshold),
+      Dose_count_4 = plyr::round_any(sum(n_vax==4), rounding_threshold),
+      Dose_count_5plus = plyr::round_any(sum(n_vax>=5), rounding_threshold),
       Median_dose_count = median(n_vax),
       Q1_dose_count = quantile(n_vax, probs = 0.25),
       Q3_dose_count = quantile(n_vax, probs = 0.75),
@@ -114,9 +114,9 @@ tab_combined <- rbind(tab_whole_pop, tab_18to49, tab_50to64, tab_65to74, tab_75p
 tab_combined$Median_dose_count[tab_combined$N<100] = NA
 tab_combined$Q1_dose_count[tab_combined$N<100] = NA
 tab_combined$Q3_dose_count[tab_combined$N<100] = NA
-tab_combined$Median_time_since_last_dose[tab_combined$N<100] = NA
-tab_combined$Q1_dose_time_since_last_dose[tab_combined$N<100] = NA
-tab_combined$Q3_dose_time_since_last_dose[tab_combined$N<100] = NA
+tab_combined$Median_time_since_last_dose_months[tab_combined$N<100] = NA
+tab_combined$Q1_time_since_last_dose_months[tab_combined$N<100] = NA
+tab_combined$Q3_time_since_last_dose_months[tab_combined$N<100] = NA
 
 # Redact rounded counts <= redaction threshold 
 redact_count_column = function(data, col_name) {
@@ -125,12 +125,12 @@ redact_count_column = function(data, col_name) {
 }
 
 # Apply redaction to count columns
-tab_combined = redact_count_column(tab_combined, "Dose_0")
-tab_combined = redact_count_column(tab_combined, "Dose_1")
-tab_combined = redact_count_column(tab_combined, "Dose_2")
-tab_combined = redact_count_column(tab_combined, "Dose_3")
-tab_combined = redact_count_column(tab_combined, "Dose_4")
-tab_combined = redact_count_column(tab_combined, "Dose_5plus")
+tab_combined = redact_count_column(tab_combined, "Dose_count_0")
+tab_combined = redact_count_column(tab_combined, "Dose_count_1")
+tab_combined = redact_count_column(tab_combined, "Dose_count_2")
+tab_combined = redact_count_column(tab_combined, "Dose_count_3")
+tab_combined = redact_count_column(tab_combined, "Dose_count_4")
+tab_combined = redact_count_column(tab_combined, "Dose_count_5plus")
 tab_combined = redact_count_column(tab_combined, "Vax_past_12m")
 tab_combined = redact_count_column(tab_combined, "Vax_past_24m")
 
