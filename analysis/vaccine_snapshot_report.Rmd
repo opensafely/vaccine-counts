@@ -71,9 +71,9 @@ d <- read_rds(here::here("output", "snapshot_report", "snapshot_summary.rds")) %
                                              Q1_dose_count,"-",Q3_dose_count,")"),
          `Vaccinated in past 12 months, n (%)` = paste0(Clean_past_12m," (",Perc_past_12m,"%)"),
          `Vaccinated in past 24 months, n (%)` = paste0(Clean_past_24m," (",Perc_past_24m,"%)"),
-         `Time in months since last dose, median (IQR)` = paste0(Median_time_since_last_dose," (",
-                                                              Q1_dose_time_since_last_dose,"-", 
-         Q3_dose_time_since_last_dose,")")
+         `Time in months since last dose, median (IQR)` = paste0(Median_time_since_last_dose_months," (",
+                                                              Q1_time_since_last_dose_months,"-", 
+         Q3_time_since_last_dose_months,")")
   ) %>%
   rename(Integer_N = N, N = Clean_N)
 
@@ -376,7 +376,7 @@ subgroup_gt = function(d_subgroup) {
     tab_options(
       row_group.font.weight="bold",
       column_labels.font.weight="bold",
-      table.font.size = pct(85)
+      table.font.size = pct(80)
     ) %>%
     cols_align(
       align = "left"
@@ -409,7 +409,7 @@ subgroup_gt(d_65to74)
 
 #### <a name="vaccination-by-demographic-clinical-50to64-table"></a> 50-64y population: Vaccination history by demographic and clinical subgroups
 
-<summary>Show/hide table</summary>
+<details><summary>Show/hide table</summary>
 
 ```{r}
 subgroup_gt(d_50to64)
@@ -417,18 +417,21 @@ subgroup_gt(d_50to64)
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
 
+</details>
+
 <br>
 
 #### <a name="vaccination-by-demographic-clinical-18to49-table"></a> 18-49y population: Vaccination history by demographic and clinical subgroups
 
-<summary>Show/hide table</summary>
+<details><summary>Show/hide table</summary>
 
 ```{r}
-subgroup_gt(d_18to49) %>%
-  tab_options(container.height = 500)
+subgroup_gt(d_18to49)
 ```
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
+
+</details>
 
 <br>
 

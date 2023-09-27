@@ -47,9 +47,9 @@ summarise_vax_history = function(data) {
       Q3_dose_count = quantile(n_vax, probs = 0.75),
       Vax_past_12m = plyr::round_any(sum(vax_past_12m==1, na.rm=TRUE), rounding_threshold),
       Vax_past_24m = plyr::round_any(sum(vax_past_24m==1, na.rm=TRUE), rounding_threshold),
-      Median_time_since_last_dose = round(median(time_since_last_vax_months, na.rm=TRUE),1),
-      Q1_dose_time_since_last_dose = round(quantile(time_since_last_vax_months, probs = 0.25, na.rm=TRUE),1),
-      Q3_dose_time_since_last_dose = round(quantile(time_since_last_vax_months, probs = 0.75, na.rm=TRUE),1),
+      Median_time_since_last_dose_months = round(median(time_since_last_vax_months, na.rm=TRUE),1),
+      Q1_time_since_last_dose_months = round(quantile(time_since_last_vax_months, probs = 0.25, na.rm=TRUE),1),
+      Q3_time_since_last_dose_months = round(quantile(time_since_last_vax_months, probs = 0.75, na.rm=TRUE),1),
     )
 }
 
