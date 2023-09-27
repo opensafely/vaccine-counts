@@ -77,10 +77,16 @@ d <- read_rds(here::here("output", "snapshot_report", "snapshot_summary.rds")) %
   ) %>%
   rename(Integer_N = N, N = Clean_N)
 
-# Clean redactions
-d[d=="NA (NA%)"] = "[Redacted]"
-d[d=="NA (NA-NA)"] = "[Redacted]"
 
+## Replace NAs with dummy numbers if running locally
+if(Sys.getenv("OPENSAFELY_BACKEND") %in% c("", "expectations")) {
+  d[d=="NA (NA%)"] = "10,000 (11.1%)"
+  d[d=="NA (NA-NA)"] = "11.1 (10.1-12.1)"
+} else {
+  # Clean redactions if running on server
+  d[d=="NA (NA%)"] = "[Redacted]"
+  d[d=="NA (NA-NA)"] = "[Redacted]"
+}
 ## Set factor levels
 d$Covariate = factor(d$Covariate, levels=unique(d$Covariate))
 d$Level = factor(d$Level, levels=unique(d$Level))
@@ -403,7 +409,7 @@ subgroup_gt(d_65to74)
 
 #### <a name="vaccination-by-demographic-clinical-50to64-table"></a> 50-64y population: Vaccination history by demographic and clinical subgroups
 
-<details><summary>Show/hide table</summary>
+<summary>Show/hide table</summary>
 
 ```{r}
 subgroup_gt(d_50to64)
@@ -411,21 +417,18 @@ subgroup_gt(d_50to64)
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
 
-</details>
-
 <br>
 
 #### <a name="vaccination-by-demographic-clinical-18to49-table"></a> 18-49y population: Vaccination history by demographic and clinical subgroups
 
-<details><summary>Show/hide table</summary>
+<summary>Show/hide table</summary>
 
 ```{r}
-subgroup_gt(d_18to49)
+subgroup_gt(d_18to49) %>%
+  tab_options(container.height = 500)
 ```
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
-
-</details>
 
 <br>
 
