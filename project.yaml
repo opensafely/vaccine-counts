@@ -70,3 +70,4 @@ actions:
     outputs:
       moderately_sensitive:
         html: output/snapshot_report/vaccine_snapshot_report.html
+        png: output/snapshot_report/*.png

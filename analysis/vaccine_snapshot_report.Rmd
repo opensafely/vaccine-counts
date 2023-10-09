@@ -22,6 +22,8 @@ library('gtsummary')
 library('cowplot')
 library('RColorBrewer')
 library('ggridges')
+library('webshot2')
+library('knitr')
 
 # Function fct_case_when 
 source(here("analysis", "snapshot_utils", "fct_case_when.R"))
@@ -78,7 +80,7 @@ d <- read_rds(here::here("output", "snapshot_report", "snapshot_summary.rds")) %
   rename(Integer_N = N, N = Clean_N)
 
 
-## Replace NAs with dummy numbers if running locally
+# Replace NAs with dummy numbers if running locally
 if(Sys.getenv("OPENSAFELY_BACKEND") %in% c("", "expectations")) {
   d[d=="NA (NA%)"] = "111,111 (11.1%)"
   d[d=="NA (NA-NA)"] = "11.1 (11.1-11.1)"
@@ -87,7 +89,7 @@ if(Sys.getenv("OPENSAFELY_BACKEND") %in% c("", "expectations")) {
   d[d=="NA (NA%)"] = "[Redacted]"
   d[d=="NA (NA-NA)"] = "[Redacted]"
 }
-## Set factor levels
+# Set factor levels
 d$Covariate = factor(d$Covariate, levels=unique(d$Covariate))
 d$Level = factor(d$Level, levels=unique(d$Level))
 d$Population = factor(d$Population, levels=rev(unique(d$Population)))
@@ -333,6 +335,11 @@ plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
 #### <a name="vaccination-by-age-table"></a> Vaccination history by age
 
 ```{r}
+# Create output directory
+output_dir <- here("output", "snapshot_report")
+fs::dir_create(output_dir)
+
+# Create table
 d_all %>% 
   rename(`Age group` = Level) %>%
   arrange(rev(`Age group`)) %>%
@@ -351,7 +358,11 @@ d_all %>%
   ) %>%
   cols_align(
     align = "left"
-  )
+  ) %>%
+  gtsave(filename = paste0(output_dir, "/vaccination_history_by_age.png"))
+
+# Render table as image
+include_graphics(fs::path(output_dir, "/vaccination_history_by_age.png"))
 ```
 *Abbreviation: IQR = interquartile range.*
 
@@ -368,7 +379,7 @@ subgroup_gt = function(d_subgroup) {
     select(Covariate, Level, N, `0`, `1`, `2`, `3`, `4`, `5+`, `Dose count, median (IQR)`, 
            `Vaccinated in past 12 months, n (%)`, `Vaccinated in past 24 months, n (%)`,
            `Time in months since last dose, median (IQR)`) %>%
-    gt(groupname_col = "Covariate", id = "thistab") %>%
+    gt(groupname_col = "Covariate") %>%
     tab_spanner(
       label = "Dose count",
       columns = c("0", "1", "2", "3", "4", "5+"),
@@ -384,7 +395,11 @@ subgroup_gt = function(d_subgroup) {
 }
 
 # Generate table
-subgroup_gt(d_75plus) 
+tab = subgroup_gt(d_75plus) %>%
+ gtsave(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_75plus.png"))
+  
+# Render table as image
+include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clinical_75plus.png"))
 ```
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
@@ -398,7 +413,9 @@ subgroup_gt(d_75plus)
 <details><summary>Show/hide table</summary>
 
 ```{r}
-subgroup_gt(d_65to74)
+subgroup_gt(d_65to74) %>%
+ gtsave(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_65to74.png"))
+include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clinical_65to74.png"))
 ```
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
@@ -412,7 +429,9 @@ subgroup_gt(d_65to74)
 <details><summary>Show/hide table</summary>
 
 ```{r}
-subgroup_gt(d_50to64)
+subgroup_gt(d_50to64) %>%
+ gtsave(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_50to64.png"))
+include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clinical_50to64.png"))
 ```
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
@@ -426,7 +445,9 @@ subgroup_gt(d_50to64)
 <details><summary>Show/hide table</summary>
 
 ```{r}
-subgroup_gt(d_18to49)
+subgroup_gt(d_18to49) %>%
+ gtsave(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_18to49.png"))
+include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clinical_18to49.png"))
 ```
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
