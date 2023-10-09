@@ -339,6 +339,23 @@ plot_grid(g1, g2, g3, ncol=3, align="h", axis="tb", rel_widths=c(1.5,1,1.2))
 output_dir <- here("output", "snapshot_report")
 fs::dir_create(output_dir)
 
+# Function to duplicate gt_save_webshot method from modern gt (using webshot2)
+# see https://github.com/rstudio/gt/blob/v0.10.0/R/export.R#L270
+gt_save_webshot2 <- function(data, filename, path = NULL, ..., selector = "table",
+                            zoom = 2, expand = 5) {
+  filename <- gt:::gtsave_filename(path = path, filename = filename)
+  tempfile_ <- tempfile(fileext = ".html")
+  tempfile_ <- gt:::tidy_gsub(tempfile_, "\\\\", "/")
+  gt:::gt_save_html(data = data, filename = tempfile_, path = NULL)
+
+  webshot2::webshot(
+    url = paste0("file:///", tempfile_),
+    file = filename, selector = selector, zoom = zoom,
+    expand = expand, ...
+  )
+}
+
+
 # Create table
 d_all %>% 
   rename(`Age group` = Level) %>%
@@ -359,7 +376,7 @@ d_all %>%
   cols_align(
     align = "left"
   ) %>%
-  gtsave(filename = paste0(output_dir, "/vaccination_history_by_age.png"))
+  gt_save_webshot2(filename = paste0(output_dir, "/vaccination_history_by_age.png"))
 
 # Render table as image
 include_graphics(fs::path(output_dir, "/vaccination_history_by_age.png"))
@@ -396,7 +413,7 @@ subgroup_gt = function(d_subgroup) {
 
 # Generate table
 tab = subgroup_gt(d_75plus) %>%
- gtsave(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_75plus.png"))
+ gt_save_webshot2(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_75plus.png"))
   
 # Render table as image
 include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clinical_75plus.png"))
@@ -414,7 +431,7 @@ include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clini
 
 ```{r}
 subgroup_gt(d_65to74) %>%
- gtsave(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_65to74.png"))
+ gt_save_webshot2(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_65to74.png"))
 include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clinical_65to74.png"))
 ```
 
@@ -430,7 +447,7 @@ include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clini
 
 ```{r}
 subgroup_gt(d_50to64) %>%
- gtsave(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_50to64.png"))
+ gt_save_webshot2(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_50to64.png"))
 include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clinical_50to64.png"))
 ```
 
@@ -446,7 +463,7 @@ include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clini
 
 ```{r}
 subgroup_gt(d_18to49) %>%
- gtsave(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_18to49.png"))
+ gt_save_webshot2(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_18to49.png"))
 include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clinical_18to49.png"))
 ```
 
