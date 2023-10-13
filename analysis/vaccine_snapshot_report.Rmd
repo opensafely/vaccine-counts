@@ -15,7 +15,6 @@ The full analytic methods behind the latest results in this report are available
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 
 # Import libraries
-library('webshot2')
 library('here')
 library('tidyverse')
 library('gt')
@@ -359,10 +358,10 @@ d_all %>%
   cols_align(
     align = "left"
   ) %>%
-  gtsave(filename = paste0(output_dir, "/vaccination_history_by_age.png"))
+  gtsave(filename = paste0(output_dir, "/vaccination_history_by_age_table.html"))
 
-# Render table as image
-include_graphics(fs::path(output_dir, "/vaccination_history_by_age.png"))
+# Include html table
+htmltools::includeHTML(fs::path(output_dir, "/vaccination_history_by_age_table.html"))
 ```
 *Abbreviation: IQR = interquartile range.*
 
@@ -396,10 +395,10 @@ subgroup_gt = function(d_subgroup) {
 
 # Generate table
 tab = subgroup_gt(d_75plus) %>%
- gtsave(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_75plus.png"))
+ gtsave(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_75plus_table.html"))
   
-# Render table as image
-include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clinical_75plus.png"))
+# Include html table
+htmltools::includeHTML(fs::path(output_dir, "/vaccination_history_by_demographic_clinical_75plus_table.html"))
 ```
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
@@ -414,8 +413,8 @@ include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clini
 
 ```{r}
 subgroup_gt(d_65to74) %>%
- gtsave(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_65to74.png"))
-include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clinical_65to74.png"))
+ gtsave(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_65to74_table.html"))
+htmltools::includeHTML(fs::path(output_dir, "/vaccination_history_by_demographic_clinical_65to74_table.html"))
 ```
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
@@ -430,8 +429,8 @@ include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clini
 
 ```{r}
 subgroup_gt(d_50to64) %>%
- gtsave(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_50to64.png"))
-include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clinical_50to64.png"))
+ gtsave(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_50to64_table.html"))
+htmltools::includeHTML(fs::path(output_dir, "/vaccination_history_by_demographic_clinical_50to64_table.html"))
 ```
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
@@ -446,8 +445,8 @@ include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clini
 
 ```{r}
 subgroup_gt(d_18to49) %>%
- gtsave(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_18to49.png"))
-include_graphics(fs::path(output_dir, "/vaccination_history_by_demographic_clinical_18to49.png"))
+ gtsave(filename = paste0(output_dir, "/vaccination_history_by_demographic_clinical_18to49_table.html"))
+htmltools::includeHTML(fs::path(output_dir, "/vaccination_history_by_demographic_clinical_18to49_table.html"))
 ```
 
 <br>*Abbreviations: CKD = chronic kidney disease; IMD = index of multiple deprivation; IQR = interquartile range; RRT = renal replacement therapy.*
