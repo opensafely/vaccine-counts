@@ -33,8 +33,8 @@
     "opensafely-asthma-oral-prednisolone-medication.csv": {
       "id": "opensafely/asthma-oral-prednisolone-medication/2020-04-27",
       "url": "https://codelists.opensafely.org/codelist/opensafely/asthma-oral-prednisolone-medication/2020-04-27/",
-      "downloaded_at": "2023-09-14 09:46:16.870803Z",
-      "sha": "e47cc254975c23f7507cf04bb655454f8b5ece18"
+      "downloaded_at": "2023-11-09 12:27:06.316286Z",
+      "sha": "a27045e5455a014a290ba8c2dfb75066dbb91eb4"
     },
     "opensafely-chronic-cardiac-disease.csv": {
       "id": "opensafely/chronic-cardiac-disease/2020-04-08",
@@ -141,8 +141,8 @@
     "primis-covid19-vacc-uptake-immrx.csv": {
       "id": "primis-covid19-vacc-uptake/immrx/v1",
       "url": "https://codelists.opensafely.org/codelist/primis-covid19-vacc-uptake/immrx/v1/",
-      "downloaded_at": "2023-09-14 09:46:21.928081Z",
-      "sha": "8523d6c40d34eeedaab6bf7e550a4b295b83b7dd"
+      "downloaded_at": "2023-11-09 12:27:10.337077Z",
+      "sha": "f9f3810f3e3d151a4342b84141fabee6fce26c9c"
     },
     "nhsd-primary-care-domain-refsets-ld_cod.csv": {
       "id": "nhsd-primary-care-domain-refsets/ld_cod/20210127",
