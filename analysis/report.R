@@ -60,7 +60,8 @@ data_vax_clean <-
     vax_dosenumber = factor(vax_index, levels = sort(unique(vax_index)), labels = paste("Dose", sort(unique(vax_index)))),
     vax_week = floor_date(vax_date, unit =  "week", week_start = 1),
     vax_type = fct_recode(factor(vax_type, levels=vax_type_lookup_6), !!!vax_type_lookup_6),
-    all=""
+    all="",
+    all2=""
   )
 
 
@@ -203,6 +204,10 @@ plot_vax_dates(ageband, vax_dosenumber)
 plot_vax_dates(region, vax_dosenumber)
 plot_vax_dates(sex, vax_dosenumber)
 plot_vax_dates(vax_dosenumber, all)
+plot_vax_dates(ageband, all)
+plot_vax_dates(region, all)
+plot_vax_dates(sex, all)
+plot_vax_dates(all, all2)
 
 ## output plots of time since previous vaccination by type, dose number, and other characteristics ----
 
