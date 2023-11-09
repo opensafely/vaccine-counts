@@ -34,8 +34,9 @@ data_varying_clean <- read_rds(here("output", "process", "data_vax_clean.rds"))
 
 ## add time-invariant info to vaccine data and format variables for printing / plots ----
 
-# only use first 6 vaccines in look up list, and set the rest to "unknown"
-vax_type_lookup_6 <- vax_type_lookup[c(1:6, length(vax_type_lookup))]
+# only use first 8 vaccines in look up list
+vax_type_lookup_8 <- vax_type_lookup[c(1:8)]#, length(vax_type_lookup))]
+#vax_type_lookup_2 <- vax_type_lookup[c(1:2)]#, length(vax_type_lookup))]
 
 data_vax <-
   left_join(
@@ -46,7 +47,7 @@ data_vax <-
   mutate(
     vax_dosenumber = factor(vax_index, levels = sort(unique(vax_index)), labels = paste("Dose", sort(unique(vax_index)))),
     vax_week = floor_date(vax_date, unit =  "week", week_start = 1),
-    vax_type = fct_recode(factor(vax_type, levels=vax_type_lookup_6), !!!vax_type_lookup_6),
+    vax_type = fct_recode(factor(vax_type, levels=vax_type_lookup_8), !!!vax_type_lookup_8),
     all=""
   )
 
@@ -59,7 +60,7 @@ data_vax_clean <-
   mutate(
     vax_dosenumber = factor(vax_index, levels = sort(unique(vax_index)), labels = paste("Dose", sort(unique(vax_index)))),
     vax_week = floor_date(vax_date, unit =  "week", week_start = 1),
-    vax_type = fct_recode(factor(vax_type, levels=vax_type_lookup_6), !!!vax_type_lookup_6),
+    vax_type = fct_recode(factor(vax_type, levels=vax_type_lookup_8), !!!vax_type_lookup_8),
     all="",
     all2=""
   )
@@ -170,7 +171,12 @@ plot_vax_dates <- function(rows, cols){
       y=NULL,
       fill=NULL
     )+
-    scale_fill_brewer(palette="Set2")+
+    scale_fill_brewer(
+      palette="Set2",
+      na.value = "grey50",
+      labels = function(breaks) {breaks[is.na(breaks)] <- "Other"; breaks}
+    )+
+    #scale_fill_manual(values=c(RColorBrewer::brewer.pal(8, "Set2"), "grey50"))+
     scale_x_date(
       breaks=as.Date(c("2021-01-01","2022-01-01","2023-01-01","2024-01-01")),
       date_minor_breaks="month",
@@ -209,6 +215,7 @@ plot_vax_dates(region, all)
 plot_vax_dates(sex, all)
 plot_vax_dates(all, all2)
 
+
 ## output plots of time since previous vaccination by type, dose number, and other characteristics ----
 
 plot_vax_intervals <- function(rows, cols){
@@ -245,7 +252,11 @@ plot_vax_intervals <- function(rows, cols){
       y=NULL,
       fill=NULL
     )+
-    scale_fill_brewer(palette="Set2")+
+    scale_fill_brewer(
+      palette="Set2",
+      na.value = "grey50",
+      labels = function(breaks) {breaks[is.na(breaks)] <- "Other"; breaks}
+    )+
     scale_x_continuous(
       breaks = (0:100)*4*7,
       #limits = c(0, NA),
@@ -275,7 +286,6 @@ plot_vax_intervals(ageband, vax_dosenumber)
 plot_vax_intervals(region, vax_dosenumber)
 plot_vax_intervals(sex, vax_dosenumber)
 plot_vax_intervals(vax_dosenumber, all)
-
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -366,7 +376,11 @@ plot_date_of_last_dose <- function(rows){
       y=NULL,
       fill=NULL
     )+
-    scale_fill_brewer(palette="Set2")+
+    scale_fill_brewer(
+      palette="Set2",
+      na.value = "grey50",
+      labels = function(breaks) {breaks[is.na(breaks)] <- "Other"; breaks}
+    )+
     scale_x_date(
       breaks=c(default_date-30, as.Date(c("2021-01-01","2022-01-01","2023-01-01","2024-01-01"))),
       date_minor_breaks="month",

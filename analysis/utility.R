@@ -80,10 +80,12 @@ vax_product_lookup = c(
   "moderna"="COVID-19 mRNA Vaccine Spikevax (nucleoside modified) 0.1mg/0.5mL dose disp for inj MDV (Moderna)",
   "pfizerBA1"="Comirnaty Original/Omicron BA.1 COVID-19 Vacc md vials",
   "pfizerBA45"="Comirnaty Original/Omicron BA.4-5 COVID-19 Vacc md vials",
+  "pfizerXBB15"="Comirnaty Omicron XBB.1.5 COVID-19 Vacc md vials",
   "vidprevtyn"="COVID-19 Vacc VidPrevtyn (B.1.351) 0.5ml inj multidose vials",
   "modernaomicron"="COVID-19 Vac Spikevax (Zero)/(Omicron) inj md vials",
   "pfizerchildren"="COVID-19 mRNA Vaccine Comirnaty Children 5-11yrs 10mcg/0.2ml dose conc for disp for inj MDV (Pfizer)",
-  "azhalf"="COVID-19 Vac AZD2816 (ChAdOx1 nCOV-19) 3.5x10*9 viral part/0.5ml dose sol for inj MDV (AstraZeneca)"
+  "azhalf"="COVID-19 Vac AZD2816 (ChAdOx1 nCOV-19) 3.5x10*9 viral part/0.5ml dose sol for inj MDV (AstraZeneca)",
+  "modernaXBB15"="COVID-19 Vacc Spikevax (XBB.1.5) 0.1mg/1ml inj md vials"
 )
 
 vax_type_lookup = c(
@@ -92,10 +94,12 @@ vax_type_lookup = c(
   "mRNA-1273"="moderna",
   "BNT162b2/BA.1"="pfizerBA1",
   "BNT162b2/BA.4-5"="pfizerBA45",
+  "BNT162b2/XBB.1.5"="pfizerXBB15",
   "VidPrevtyn" = "vidprevtyn",
   "mRNA-1273/omicron"="modernaomicron",
   "BNT162b2/children"="pfizerchildren",
   "ChAdOx1/2"="azhalf",
+  "mRNA-1273/XBB.1.5"="modernaXBB15",
   "Other"="other"
 )
 
